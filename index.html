@@ -1,0 +1,2669 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0c0c0d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Кадр">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Кадр за кадром</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>(function(){try{var t=localStorage.getItem('vocab_theme')||'dark';if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+  :root {
+    --bg: #f2f3f5; --surface: #ffffff; --surface-2: #eceef1; --text: #16171b;
+    --text-muted: #6c7079; --accent: #2b6cf0; --accent-ink: #ffffff;
+    --border: #e2e4e9; --danger: #e0393f; --ok: #15803d; --on-ok: #ffffff; --warn: #b45f06;
+    --pro: #6d3fe8; --pro-bg: #ebe5ff; --pro-ink: #3b1f99;
+    --t-film: #2f6fd6; --t-series: #7A5FB5; --t-book: #B07A33; --t-article: #4C8C8C;
+    --t-song: #C15A8C; --t-talk: #5FA05B; --t-other: #8A8776;
+    --lv-new: #8a8d96; --lv-learning: #c2417d; --lv-known: #2f6fd6; --lv-mastered: #15803d;
+    --pos-verb: #2f6fd6; --pos-noun: #b45f06; --pos-adj: #15803d; --pos-adv: #6d3fe8; --pos-other: #8a8d96;
+    font-family: 'Inter', system-ui, sans-serif; box-sizing: border-box;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0c0c0d; --surface: #1b1b1e; --surface-2: #2a2a2f; --text: #f3f3f5;
+      --text-muted: #9c9ca6; --accent: #2b6cf0; --accent-ink: #ffffff;
+      --border: #2b2b31; --danger: #ff6b70; --ok: #35d07f; --on-ok: #062914; --warn: #f2b33d;
+      --pro: #8b5cf6; --pro-bg: #271f45; --pro-ink: #d9ccff;
+      --lv-new: #8a8d96; --lv-learning: #e870a8; --lv-known: #5c9bff; --lv-mastered: #35d07f;
+      --pos-verb: #5c9bff; --pos-noun: #f2b33d; --pos-adj: #35d07f; --pos-adv: #b79bff; --pos-other: #8a8d96;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0c0d; --surface: #1b1b1e; --surface-2: #2a2a2f; --text: #f3f3f5;
+    --text-muted: #9c9ca6; --accent: #2b6cf0; --accent-ink: #ffffff;
+    --border: #2b2b31; --danger: #ff6b70; --ok: #35d07f; --on-ok: #062914; --warn: #f2b33d;
+    --pro: #8b5cf6; --pro-bg: #271f45; --pro-ink: #d9ccff;
+    --lv-new: #8a8d96; --lv-learning: #e870a8; --lv-known: #5c9bff; --lv-mastered: #35d07f;
+    --pos-verb: #5c9bff; --pos-noun: #f2b33d; --pos-adj: #35d07f; --pos-adv: #b79bff; --pos-other: #8a8d96;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 26px 18px 70px; }
+
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  h1 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: clamp(24px, 5vw, 33px); margin: 0; letter-spacing: -0.01em; }
+  .brand-sub { font-size: 12px; color: var(--text-muted); font-style: italic; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .stats { display: flex; gap: 12px; }
+  .stat { text-align: center; min-width: 44px; }
+  .stat .n { font-family: 'Inter', sans-serif; font-size: 19px; font-weight: 600; line-height: 1; }
+  .stat .l { font-size: 10px; color: var(--text-muted); letter-spacing: .02em; }
+  .gear-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 15px; color: var(--text-muted); }
+
+  .tagline { color: var(--text-muted); font-size: 13.5px; margin: 4px 0 18px; max-width: 54ch; line-height: 1.55; }
+  .status-banner { display: none; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13.5px; color: var(--text-muted); margin-bottom: 18px; }
+  .status-banner.show { display: block; }
+
+  .settings-panel { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 20px; }
+  .settings-panel.show { display: block; }
+  .settings-panel label { display: block; font-size: 12px; color: var(--text-muted); margin: 0 0 6px; }
+  .settings-panel input[type="text"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 9px 11px; font-size: 14px; color: var(--text); }
+  .settings-actions { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .settings-hint { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; }
+  .settings-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+  nav.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 22px; overflow-x: auto; }
+  nav.tabs button { appearance: none; background: none; border: none; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 500; color: var(--text-muted); padding: 10px 4px; margin-right: 20px; cursor: pointer; position: relative; top: 1px; white-space: nowrap; }
+  nav.tabs button.active { color: var(--text); border-bottom: 2px solid var(--accent); }
+  section.view { display: none; }
+  section.view.active { display: block; animation: fade .18s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+
+  label { display: block; font-size: 12px; color: var(--text-muted); margin: 15px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  input[type="text"], textarea, select { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 14.5px; color: var(--text); }
+  input[type="file"] { width: 100%; font-size: 12.5px; color: var(--text-muted); }
+  input[type="text"]:focus, textarea:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  textarea { resize: vertical; min-height: 54px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .row2, .row3 { grid-template-columns: 1fr; } }
+
+  fieldset { border: 1px dashed var(--border); border-radius: 8px; padding: 12px 14px 14px; margin: 16px 0 0; }
+  fieldset legend { font-size: 12.5px; color: var(--text-muted); padding: 0 6px; }
+  .verb-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); margin: 14px 0 0; cursor: pointer; }
+  .verb-toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .verb-forms { display: none; }
+  .verb-forms.show { display: block; }
+
+  .btn { appearance: none; border: none; border-radius: 7px; padding: 10px 16px; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+  .btn-lg { padding: 14px 22px; font-size: 15px; }
+  .form-actions { margin-top: 16px; display: flex; align-items: center; gap: 14px; }
+  .form-status { font-size: 12.5px; color: var(--text-muted); }
+  .hint { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+
+  .type-chips { display: flex; gap: 6px; flex-wrap: wrap; margin: -2px 0 0; }
+  .type-chip { border: 1px solid var(--border); background: var(--surface); border-radius: 7px; padding: 7px 11px; font-size: 12.5px; cursor: pointer; color: var(--text-muted); }
+  .type-chip.active { color: #fff; border-color: transparent; }
+
+  .root-suggest { display: none; font-size: 12px; color: var(--ok); margin-top: 6px; align-items: center; gap: 8px; }
+  .root-suggest.show { display: flex; }
+  .root-suggest button { appearance: none; border: 1px solid var(--ok); background: transparent; color: var(--ok); border-radius: 6px; padding: 3px 10px; font-size: 11.5px; cursor: pointer; }
+
+  .tag-row { margin-bottom: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .tag-chip { display: inline-flex; align-items: center; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; color: var(--text-muted); background: var(--surface); cursor: pointer; margin: 0 6px 6px 0; }
+  .tag-chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .tag-chip.warn-chip { border-color: var(--warn); color: var(--warn); }
+  .tag-chip.warn-chip.active { background: var(--warn); border-color: var(--warn); color: #fff; }
+  .pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-muted); margin: 0 5px 5px 0; }
+
+  .search-row { margin-bottom: 14px; }
+  .search-row input { font-size: 14px; }
+
+  .level-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .level-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .leech-badge { display: inline-block; font-size: 10.5px; color: var(--warn); border: 1px solid var(--warn); border-radius: 999px; padding: 2px 8px; margin-left: 8px; }
+
+  details.type-group { margin-bottom: 14px; }
+  details.type-group summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border); }
+  details.type-group summary::-webkit-details-marker { display: none; }
+  .type-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .type-title { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 600; }
+  .type-count { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+
+  details.source-group { margin: 10px 0 10px 6px; border-left: 2px solid var(--border); padding-left: 14px; }
+  details.source-group summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  details.source-group summary::-webkit-details-marker { display: none; }
+  .source-cover { width: 34px; height: 34px; border-radius: 6px; object-fit: cover; background: var(--surface-2); flex-shrink: 0; }
+  .source-cover-placeholder { width: 34px; height: 34px; border-radius: 6px; background: var(--surface-2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+  .source-name { font-weight: 600; font-size: 14.5px; }
+  .source-count { font-size: 11.5px; color: var(--text-muted); margin-left: auto; }
+
+  .phrase-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 8px; padding: 13px 15px; margin: 8px 0; }
+  .phrase-text-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .phrase-text { font-size: 15.5px; font-weight: 600; margin: 0 0 4px; }
+  .speak-btn { appearance: none; background: var(--surface-2); border: none; border-radius: 6px; width: 24px; height: 24px; font-size: 12px; cursor: pointer; color: var(--text); flex-shrink: 0; }
+  .phrase-translation { font-size: 13px; color: var(--text-muted); margin: 2px 0 6px; }
+  .phrase-note { font-size: 12.5px; color: var(--text-muted); margin: 0 0 8px; }
+  .phrase-example { font-size: 13.5px; font-style: italic; color: var(--text); background: var(--surface-2); border-radius: 6px; padding: 8px 10px; margin: 0 0 6px; }
+  .add-example-link { font-size: 11.5px; color: var(--accent); background: none; border: none; cursor: pointer; padding: 0 0 8px; display: block; }
+  .add-example-row { display: none; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .add-example-row.show { display: flex; }
+  .add-example-row .row2 { margin-bottom: 0; }
+  .add-example-row button { align-self: flex-start; }
+  .phrase-video { width: 100%; max-width: 320px; border-radius: 8px; margin: 0 0 10px; display: block; background: #000; }
+  .phrase-forms { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .form-chip { font-size: 11px; background: var(--surface-2); border-radius: 6px; padding: 3px 7px; color: var(--text-muted); }
+  .phrase-tags { margin-bottom: 6px; }
+  .phrase-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .used-toggle { font-size: 11.5px; display: flex; align-items: center; gap: 6px; color: var(--text-muted); cursor: pointer; user-select: none; }
+  .used-toggle input { accent-color: var(--ok); }
+  .used-toggle.is-used { color: var(--ok); font-weight: 600; }
+  .del-btn { background: none; border: none; color: var(--text-muted); font-size: 11.5px; cursor: pointer; padding: 2px 4px; }
+  .del-btn:hover { color: var(--danger); }
+
+  .empty { text-align: center; padding: 44px 20px; color: var(--text-muted); }
+  .empty .big { font-size: 30px; display: block; margin-bottom: 10px; }
+
+  /* Повторение */
+  .session-hero { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; text-align: center; margin-bottom: 14px; }
+  .session-hero .big-count { font-family: 'Inter', sans-serif; font-size: 34px; font-weight: 700; }
+  .session-hero .sub { font-size: 13px; color: var(--text-muted); margin: 2px 0 16px; }
+  .advanced-toggle { background: none; border: none; color: var(--text-muted); font-size: 12.5px; cursor: pointer; padding: 6px 0; text-decoration: underline; }
+  .advanced-panel { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-top: 10px; }
+  .advanced-panel.show { display: block; }
+  .review-filters { margin-bottom: 14px; }
+  .filter-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  #cards-source-select { margin-top: 8px; }
+  .mode-row { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .mode-btn { appearance: none; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); border-radius: 7px; padding: 8px 12px; font-size: 12.5px; font-weight: 500; cursor: pointer; }
+  .mode-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .mode-desc { font-size: 12.5px; color: var(--text-muted); margin: 0 0 6px; min-height: 17px; }
+  .deck-stats { font-size: 12px; color: var(--text-muted); margin: 0 0 14px; padding: 8px 12px; background: var(--surface-2); border-radius: 7px; display: inline-block; }
+
+  .deck-empty { text-align: center; padding: 38px 20px; color: var(--text-muted); }
+  .deck-progress { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between; }
+  .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; min-height: 220px; padding: 24px 22px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .face-label { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+  .front-phrase-row { display: flex; align-items: center; gap: 10px; }
+  .front-phrase { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 600; }
+  .review-card video { width: 100%; max-width: 320px; border-radius: 10px; background: #000; margin-bottom: 4px; }
+  .back-example { font-size: 14.5px; font-style: italic; margin-bottom: 8px; }
+  .back-note { font-size: 12.5px; color: var(--text-muted); }
+
+  .choice-grid { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-top: 4px; }
+  .choice-opt { text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; font-size: 13.5px; cursor: pointer; color: var(--text); }
+  .choice-opt.correct { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, var(--surface)); }
+  .choice-opt.wrong { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 14%, var(--surface)); }
+  .choice-opt:disabled { cursor: default; }
+
+  .blank-input { width: 100%; margin-top: 10px; text-align: center; font-size: 15px; }
+  .blank-feedback { margin-top: 10px; font-size: 13px; }
+  .blank-feedback.ok { color: var(--ok); }
+  .blank-feedback.no { color: var(--danger); }
+
+  .grade-row { display: flex; gap: 10px; margin-top: 16px; width: 100%; }
+  .grade-row .btn { flex: 1; }
+  .grade-fail { background: var(--surface); color: var(--danger); border: 1px solid var(--border); }
+  .grade-ok { background: var(--ok); color: #fff; }
+  .grade-row-4 { gap: 6px; }
+  .grade-row-4 .btn { padding: 10px 6px; font-size: 12.5px; }
+  .grade-again { background: var(--surface); color: var(--danger); border: 1px solid var(--danger); }
+  .grade-hard { background: var(--surface); color: var(--warn); border: 1px solid var(--warn); }
+  .grade-good { background: var(--ok); color: #fff; }
+  .grade-easy { background: var(--accent); color: var(--accent-ink); }
+
+  .family-forms { display: flex; flex-wrap: wrap; gap: 8px; }
+  .family-form-chip { background: var(--surface-2); border-radius: 8px; padding: 8px 12px; font-size: 13px; max-width: 100%; border-left: 3px solid var(--border); }
+  .compose-input { width: 100%; margin-top: 12px; min-height: 70px; font-size: 14.5px; }
+  .pos-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; color: #fff; margin-bottom: 4px; }
+  .verb-reg-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px; color: #fff; margin: 0 6px 4px 0; }
+  .pos-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: -2px; }
+  .pos-chip { border: 1px solid var(--border); background: var(--surface); border-radius: 7px; padding: 6px 10px; font-size: 12px; cursor: pointer; color: var(--text-muted); }
+  .pos-chip.active { color: #fff; border-color: transparent; }
+  .family-add-row { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .family-add-row.show { display: block; }
+  .family-add-link { font-size: 12px; color: var(--accent); background: none; border: none; cursor: pointer; margin-top: 10px; }
+  .family-add-row .row2 { margin-bottom: 8px; }
+  .edit-link { font-size: 11.5px; color: var(--text-muted); background: none; border: none; cursor: pointer; padding: 2px 4px; }
+  .edit-link:hover { color: var(--accent); }
+  .edit-panel { display: none; margin-top: 10px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .edit-panel.show { display: block; }
+  .edit-panel label { margin: 10px 0 5px; }
+  .edit-panel label:first-child { margin-top: 0; }
+  .edit-panel textarea { min-height: 60px; }
+  .edit-actions { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+
+  .session-summary { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 22px; text-align: center; }
+  .session-summary .big-count { font-family: 'Inter', sans-serif; font-size: 30px; font-weight: 700; margin-bottom: 6px; }
+  .session-summary .metrics { display: flex; justify-content: center; gap: 26px; margin: 16px 0 20px; }
+  .session-summary .metric .n { font-family: 'Inter', sans-serif; font-size: 22px; font-weight: 700; }
+  .session-summary .metric .l { font-size: 11px; color: var(--text-muted); }
+  .session-summary .actions { display: flex; gap: 10px; justify-content: center; }
+
+  footer.credit { text-align: center; color: var(--text-muted); font-size: 11.5px; margin-top: 36px; }
+
+  .irregular-row { display: flex; align-items: center; gap: 14px; padding: 11px 4px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .irregular-row .forms { flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 14px; }
+  .irregular-row .forms .base { font-weight: 600; min-width: 80px; }
+  .irregular-row .forms .arrow { color: var(--text-muted); }
+  .irregular-row .add-btn { flex-shrink: 0; }
+  .irregular-row .add-example-row { flex: 1 1 100%; }
+
+  .tense-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+  .tense-card h3 { font-family: 'Inter', sans-serif; font-size: 18px; margin: 0 0 6px; }
+  .tense-card .usage { font-size: 13px; color: var(--text-muted); margin: 0 0 14px; }
+  .tense-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .tense-table th { text-align: left; font-size: 11px; color: var(--text-muted); font-weight: 600; padding: 4px 8px 6px 0; border-bottom: 1px solid var(--border); }
+  .tense-table td { padding: 5px 8px 5px 0; border-bottom: 1px solid var(--border); }
+  .tense-table tr:last-child td { border-bottom: none; }
+  .tense-formula { display: inline-block; background: var(--surface-2); border-radius: 5px; padding: 1px 7px; font-size: 12px; color: var(--text-muted); margin-top: 10px; }
+
+  /* ===== Оболочка: нижняя панель, главная в стиле «профиль», карточки ===== */
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 14px 16px calc(112px + env(safe-area-inset-bottom)); }
+  .ic { display: block; flex-shrink: 0; }
+
+  .screen-head { display: none; align-items: center; gap: 8px; margin: 4px 0 18px; }
+  .screen-head h2 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .back-btn { appearance: none; border: none; background: var(--surface); color: var(--text); width: 40px; height: 40px; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .back-btn.show { display: flex; }
+  .status-banner { border-radius: 16px; border: none; }
+
+  .home-top { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+  .icon-btn { appearance: none; border: none; background: var(--surface); color: var(--text); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .stories { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: none; }
+  .stories::-webkit-scrollbar { display: none; }
+  .story { appearance: none; border: none; background: none; color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 7px; width: 72px; flex-shrink: 0; cursor: pointer; font-family: inherit; padding: 0; }
+  .story-ring { width: 68px; height: 68px; border-radius: 50%; border: 2.5px solid var(--accent); padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .story-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+  .story-fallback { width: 100%; height: 100%; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 20px; }
+  .story-ring.plus { border: none; background: var(--surface); color: var(--text-muted); padding: 0; }
+  .story-name { font-size: 12px; color: var(--text-muted); max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .home-name { appearance: none; border: none; background: none; color: var(--text); font-family: inherit; font-size: 32px; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 2px; padding: 0; margin: 14px 0 16px; cursor: pointer; text-align: left; }
+  .home-name .ic { color: var(--text-muted); }
+
+  .stat-row { display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; }
+  .stat-row::-webkit-scrollbar { display: none; }
+  .stat-card { flex: 0 0 auto; min-width: 124px; background: var(--surface); border-radius: 22px; padding: 16px 18px; }
+  .stat-card.wide { min-width: 188px; }
+  .stat-val { display: flex; align-items: center; gap: 8px; font-size: 28px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .stat-val.warm .ic { color: var(--warn); }
+  .stat-lbl { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+  .bar { flex: 1; height: 8px; border-radius: 4px; background: var(--surface-2); display: block; overflow: hidden; min-width: 50px; }
+  .bar > span { display: block; height: 100%; border-radius: 4px; background: var(--ok); }
+
+  .hero-card { margin-top: 16px; border-radius: 28px; padding: 22px 20px 20px; background: var(--pro-bg); }
+  .hero-title { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--pro-ink); }
+  .pill-tag { font-size: 12px; font-weight: 700; padding: 4px 11px; border-radius: 999px; background: var(--pro); color: #fff; letter-spacing: 0; }
+  .hero-sub { margin-top: 8px; font-size: 14.5px; color: var(--pro-ink); line-height: 1.45; }
+  .hero-btn { appearance: none; border: none; margin-top: 18px; background: var(--text); color: var(--bg); border-radius: 999px; padding: 14px 24px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
+
+  .section-head { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 12px; }
+  .section-head h2 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.02em; }
+  .circle-btn { appearance: none; border: none; width: 38px; height: 38px; border-radius: 50%; background: var(--text); color: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .row-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--surface); border-radius: 22px; padding: 16px 18px; }
+  .row-title { font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
+  .row-sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .pill-btn { appearance: none; border: none; background: var(--surface-2); color: var(--text); border-radius: 999px; padding: 12px 20px; font-size: 14.5px; font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap; }
+  .quick-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin-top: 10px; }
+  .quick-card { appearance: none; border: none; text-align: left; font-family: inherit; color: var(--text); background: var(--surface); border-radius: 22px; padding: 16px 18px; cursor: pointer; }
+  .quick-card .qv { display: flex; align-items: center; gap: 8px; font-size: 28px; font-weight: 800; line-height: 1.1; }
+  .quick-card .ql { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+  .quick-card.leaf .ic { color: var(--ok); }
+  .quick-card.weak .ic { color: var(--warn); }
+  .quick-card.empty { cursor: default; }
+  .quick-card.empty .qv { color: var(--text-muted); }
+
+  .ref-list { display: flex; flex-direction: column; gap: 10px; }
+  .ref-row { appearance: none; border: none; width: 100%; text-align: left; font-family: inherit; color: var(--text); background: var(--surface); border-radius: 22px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+  .ref-ic { width: 46px; height: 46px; border-radius: 15px; background: var(--surface-2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ref-body { flex: 1; min-width: 0; display: block; }
+  .ref-title { display: block; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+  .ref-sub { display: block; font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+  .ref-row > .ic { color: var(--text-muted); }
+  .source-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; background: var(--surface); border-radius: 18px; padding: 10px 12px 10px 16px; margin-bottom: 14px; font-size: 14px; }
+  .source-bar .pill-btn { padding: 9px 14px; font-size: 13px; }
+
+  nav.app-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; justify-content: space-around; align-items: flex-end; background: var(--bg); border-top: 1px solid var(--border); padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); }
+  .nav-item { appearance: none; border: none; background: none; font-family: inherit; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; font-size: 11px; font-weight: 500; flex: 1; min-width: 0; min-height: 54px; cursor: pointer; padding: 0; }
+  .nav-item.active { color: var(--text); font-weight: 700; }
+  .nav-plus { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; }
+  @media (max-width: 859px) { nav.app-nav.kb { display: none; } }
+  @media (max-width: 340px) { .nav-item { font-size: 10px; } }
+  @media (min-width: 860px) {
+    body { padding-left: 104px; }
+    nav.app-nav { top: 0; right: auto; width: 104px; flex-direction: column; justify-content: flex-start; align-items: center; gap: 12px; border-top: none; border-right: 1px solid var(--border); padding: 28px 8px; }
+    .nav-item { flex: none; width: 84px; min-height: 0; padding: 8px 0; }
+    .wrap { max-width: 860px; padding: 28px 28px 56px; }
+  }
+
+  .seg { display: flex; background: var(--surface-2); border-radius: 999px; padding: 4px; gap: 4px; }
+  .seg button { flex: 1; appearance: none; border: none; background: none; color: var(--text-muted); padding: 11px 6px; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .seg button.active { background: var(--surface); color: var(--text); }
+
+  /* ===== Общий вид существующих экранов ===== */
+  .card { background: var(--surface); border: none; border-radius: 24px; padding: 20px; }
+  input[type="text"], textarea, select { background: var(--surface-2); border: 1px solid transparent; border-radius: 14px; padding: 13px 14px; font-size: 16px; color: var(--text); }
+  input[type="text"]:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+  label { color: var(--text-muted); font-size: 13px; }
+  .btn { border-radius: 999px; padding: 13px 22px; font-size: 15px; font-weight: 700; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-ghost { background: var(--surface-2); color: var(--text); border: none; }
+  .grade-ok, .grade-good { background: var(--ok); color: var(--on-ok); }
+  .tag-chip, .type-chip, .pos-chip, .mode-btn { border: none; background: var(--surface); color: var(--text); border-radius: 999px; }
+  .tag-chip.active { background: var(--text); color: var(--bg); }
+  .tag-chip.warn-chip { box-shadow: inset 0 0 0 1.5px var(--warn); color: var(--warn); }
+  .mode-btn.active { background: var(--text); color: var(--bg); }
+  .phrase-card { border: none; border-left: 4px solid var(--border); border-radius: 20px; padding: 16px 18px; }
+  .review-card { border: none; border-radius: 28px; background: var(--surface); }
+  .choice-opt { border: none; border-radius: 16px; background: var(--surface-2); padding: 15px 16px; font-size: 15px; }
+  .front-phrase { font-weight: 700; letter-spacing: -0.01em; }
+  .session-hero { border: none; border-radius: 28px; background: var(--pro-bg); }
+  .session-hero .big-count { color: var(--pro-ink); font-weight: 800; }
+  .session-hero .sub { color: var(--pro-ink); }
+  .session-summary { border: none; border-radius: 28px; }
+  .advanced-panel { border: none; border-radius: 24px; }
+  .deck-stats { border-radius: 14px; }
+  .tense-card { border: none; border-radius: 24px; }
+  .source-group summary, .type-group summary { border-radius: 14px; }
+  .pill, .pos-badge, .verb-reg-badge { letter-spacing: 0; }
+
+  /* ===== Правки первого этапа ===== */
+  .irregular-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .irregular-row:last-child { border-bottom: none; }
+  .irregular-row .forms { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .irregular-row .speak-btn.form-say { background: none; width: auto; height: auto; padding: 0; border-radius: 0; display: inline-flex; align-items: center; justify-content: flex-start; gap: 4px; font-family: inherit; font-size: 14px; color: var(--text); text-align: left; }
+  .form-say span { overflow-wrap: anywhere; }
+  .form-say .ic { color: var(--text-muted); }
+  .irregular-row .speak-btn.form-say.base { font-weight: 700; }
+  .irr-add { appearance: none; border: none; width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .irr-done { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--ok); flex-shrink: 0; }
+  .irr-head { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 0 50px 8px 0; font-size: 11px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+
+  .card .type-chip, .card .pos-chip, .card .tag-chip, .advanced-panel .mode-btn, .advanced-panel .tag-chip, .advanced-panel .type-chip { background: var(--surface-2); }
+  .advanced-panel .mode-btn.active, .card .tag-chip.active, .advanced-panel .tag-chip.active { background: var(--text); color: var(--bg); }
+  #view-add .row2, #view-add .row3 { margin-top: 15px; }
+  #view-add fieldset .row3, #view-add fieldset .row2 { margin-top: 0; }
+  details.type-group summary, details.source-group summary { border-bottom: none; }
+  details.type-group summary { padding: 16px 4px 8px; }
+  .type-title { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
+  .level-badge { margin-right: 8px; }
+
+  .tense-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  @media (min-width: 860px) { .tense-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .tense-card { margin-bottom: 0; padding: 18px 18px 8px; }
+  .tense-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .tense-card h3 { margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.01em; }
+  .tense-form { font-size: 12px; font-weight: 600; background: var(--surface-2); color: var(--text-muted); border-radius: 999px; padding: 5px 11px; }
+  .tense-card .usage { font-size: 14px; color: var(--text-muted); line-height: 1.45; margin: 8px 0 12px; }
+  .tense-ex { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-top: 1px solid var(--border); }
+  .tense-tag { flex: 0 0 98px; font-size: 11px; font-weight: 700; padding: 4px 0; border-radius: 999px; text-align: center; margin-top: 1px; }
+  .tense-tag.aff { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+  .tense-tag.neg { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+  .tense-tag.q { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+  .tense-sent { flex: 1; min-width: 0; font-style: italic; font-size: 15px; line-height: 1.4; }
+  .tense-ex .speak-btn { flex-shrink: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--text-muted); }
+
+  /* ===== Режим установленного приложения ===== */
+  html, body { overscroll-behavior-y: contain; }
+  * { -webkit-tap-highlight-color: transparent; }
+  button, a, input, select, textarea { touch-action: manipulation; }
+  @media (max-width: 859px) { .wrap { padding-top: calc(14px + env(safe-area-inset-top)); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="screen-head" id="screen-head">
+    <button class="back-btn" id="back-btn" aria-label="Назад"></button>
+    <h2 id="screen-title"></h2>
+  </div>
+
+  <div class="status-banner" id="status-banner"></div>
+
+  <section class="view active" id="view-home"><div id="home-content"></div></section>
+
+  <section class="view" id="view-reference"><div id="reference-content"></div></section>
+
+  <section class="view" id="view-settings">
+    <div class="card">
+      <label for="s-name">Как к тебе обращаться</label>
+      <input type="text" id="s-name" placeholder="Имя для главного экрана" autocomplete="off">
+      <label>Тема</label>
+      <div class="seg" id="theme-seg">
+        <button type="button" data-theme-choice="dark">Тёмная</button>
+        <button type="button" data-theme-choice="light">Светлая</button>
+        <button type="button" data-theme-choice="auto">Авто</button>
+      </div>
+      <p class="settings-hint">«Авто» — тема как в настройках телефона или компьютера.</p>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <label for="s-server">Адрес сервера</label>
+      <input type="text" id="s-server" value="https://vocab-backend-9f63.onrender.com">
+      <label for="s-key">Секретный ключ (API_TOKEN)</label>
+      <input type="text" id="s-key" placeholder="вставь свой ключ">
+      <p class="settings-hint">Ключ хранится только в этом браузере на этом устройстве.</p>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <div class="row-title" style="font-size:17px;">Приложение на главном экране</div>
+      <p class="settings-hint" id="install-hint" style="margin:6px 0 0;"></p>
+      <button class="btn btn-primary" id="install-btn" style="display:none;margin-top:12px;">Установить</button>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <button class="btn btn-ghost" id="backup-btn">Скачать резервную копию</button>
+      <p class="settings-hint">Сохранит все фразы и источники в один файл на твоё устройство.</p>
+    </div>
+    <div class="form-actions" style="margin-top:16px;">
+      <button class="btn btn-primary" id="s-save">Сохранить</button>
+      <span class="form-status" id="s-status"></span>
+    </div>
+    <p class="settings-hint" style="text-align:center;margin-top:22px;">Данные хранятся на твоём собственном сервере.</p>
+  </section>
+
+  <section class="view" id="view-add">
+    <div class="card">
+      <label>Тип источника</label>
+      <div class="type-chips" id="type-chips"></div>
+
+      <label for="f-source-name">Название источника</label>
+      <input type="text" id="f-source-name" list="source-name-options" placeholder="Например: Zootopia, Atomic Habits, Bohemian Rhapsody">
+      <datalist id="source-name-options"></datalist>
+
+      <label for="f-source-image">Обложка источника (необязательно, картинка)</label>
+      <input type="file" id="f-source-image" accept="image/*">
+      <p class="hint">Обложка привязывается к источнику целиком — один раз на фильм/книгу.</p>
+
+      <label for="f-phrase">Фраза или слово</label>
+      <input type="text" id="f-phrase" placeholder="to blow off some steam">
+      <div class="root-suggest" id="root-suggest">
+        <span id="root-suggest-text"></span>
+        <button type="button" id="root-suggest-btn">Связать</button>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label for="f-translation">Перевод</label>
+          <input type="text" id="f-translation" placeholder="спустить пар">
+        </div>
+        <div>
+          <label for="f-example">Пример</label>
+          <input type="text" id="f-example" placeholder="I need to blow off some steam.">
+        </div>
+      </div>
+      <label for="f-example-translation">Перевод примера (необязательно — нужен для теста "Перевод предложения")</label>
+      <input type="text" id="f-example-translation" placeholder="Мне нужно спустить пар.">
+      <p class="hint">Позже, встретив фразу в новом контексте, сможешь добавить ещё примеры прямо в каталоге — не нужно создавать новую карточку.</p>
+
+      <label>Часть речи (для семьи слов, необязательно)</label>
+      <div class="pos-chips" id="pos-chips"></div>
+
+      <label class="verb-toggle"><input type="checkbox" id="f-is-verb"> Это глагол — добавить формы</label>
+      <fieldset class="verb-forms" id="verb-forms">
+        <legend>Формы глагола</legend>
+        <div class="row3">
+          <div><label for="f-form-base">Начальная (to work)</label><input type="text" id="f-form-base"></div>
+          <div><label for="f-form-3rd">3-е лицо (works)</label><input type="text" id="f-form-3rd"></div>
+          <div><label for="f-form-ing">-ing (working)</label><input type="text" id="f-form-ing"></div>
+        </div>
+        <div class="row2" style="margin-top:10px;">
+          <div><label for="f-form-past">Прошедшее (worked)</label><input type="text" id="f-form-past"></div>
+          <div><label for="f-form-participle">Причастие (worked/done)</label><input type="text" id="f-form-participle"></div>
+        </div>
+        <p class="hint" id="verb-regularity-hint"></p>
+      </fieldset>
+
+      <label for="f-note">Заметка (необязательно)</label>
+      <input type="text" id="f-note" placeholder="неформально, брит. вариант">
+
+      <label for="f-root">Корень / связанное слово (необязательно)</label>
+      <input type="text" id="f-root" placeholder="work">
+
+      <label for="f-tags">Темы через запятую (необязательно)</label>
+      <input type="text" id="f-tags" placeholder="Эмоции, Работа">
+
+      <label for="f-video">Видеофрагмент со звуком (необязательно, до 20 МБ)</label>
+      <input type="file" id="f-video" accept="video/*">
+
+      <div class="form-actions">
+        <button class="btn btn-primary" id="add-btn">Сохранить в словарь</button>
+        <span class="form-status" id="form-status"></span>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-list">
+    <div id="catalog-source-bar"></div>
+    <div class="search-row"><input type="text" id="catalog-search" placeholder="Искать по фразе или переводу..."></div>
+    <div class="tag-row" id="list-tag-row"></div>
+    <div id="list-content"></div>
+  </section>
+
+  <section class="view" id="view-families">
+    <div class="search-row"><input type="text" id="families-search" placeholder="Искать по корню или слову..."></div>
+    <div id="families-content"></div>
+  </section>
+
+  <section class="view" id="view-irregular">
+    <p class="tagline" style="margin-top:0;">Полный справочник неправильных глаголов — не зависит от твоего словаря. Добавляй те, что встретились, одним кликом.</p>
+    <div class="search-row"><input type="text" id="irregular-search" placeholder="Искать глагол..."></div>
+    <div id="irregular-content"></div>
+  </section>
+
+  <section class="view" id="view-tenses">
+    <p class="tagline" style="margin-top:0;">Справочник по 4 основным временам — тем, что реально нужны в разговоре и в текстах. Future Simple ("will" + начальная форма) не меняется по лицам, поэтому отдельной карточки не требует.</p>
+    <div id="tenses-content"></div>
+  </section>
+
+  <section class="view" id="view-cards">
+    <div id="session-start">
+      <div class="review-filters">
+        <div class="filter-label">Что повторять</div>
+        <div class="type-chips" id="cards-type-chips"></div>
+        <select id="cards-source-select"><option value="">Все источники</option></select>
+      </div>
+      <div class="tag-row" id="cards-tag-row"></div>
+
+      <div class="session-hero">
+        <div class="big-count" id="session-due-count">0</div>
+        <div class="sub" id="session-due-sub">фраз готовы к повторению</div>
+        <button class="btn btn-primary btn-lg" id="start-session-btn">Начать повторение</button>
+      </div>
+      <button class="advanced-toggle" id="toggle-advanced-btn">Выбрать конкретный тип теста ▾</button>
+      <div class="advanced-panel" id="advanced-panel">
+        <div class="mode-row" id="mode-row">
+          <button class="mode-btn" data-mode="flip">Карточки</button>
+          <button class="mode-btn active" data-mode="choice">Варианты</button>
+          <button class="mode-btn" data-mode="blank">Пропуск</button>
+          <button class="mode-btn" data-mode="form">Форма</button>
+          <button class="mode-btn" data-mode="dictation">Перевод</button>
+          <button class="mode-btn" data-mode="wordform">Словообразование</button>
+          <button class="mode-btn" data-mode="sentence">Перевод предложения</button>
+          <button class="mode-btn" data-mode="tense">Времена</button>
+          <button class="mode-btn" data-mode="family">Собери фразу</button>
+        </div>
+        <p class="mode-desc" id="mode-desc"></p>
+        <p class="deck-stats" id="deck-stats"></p>
+        <button class="btn btn-primary" id="start-manual-btn">Начать с этими настройками</button>
+      </div>
+    </div>
+    <div id="session-active" style="display:none;">
+      <div id="cards-content"></div>
+    </div>
+    <div id="session-summary" style="display:none;">
+      <div class="session-summary">
+        <div class="face-label">Сессия завершена</div>
+        <div class="big-count" id="sum-title">Отлично!</div>
+        <div class="metrics">
+          <div class="metric"><div class="n" id="sum-total">0</div><div class="l">повторено</div></div>
+          <div class="metric"><div class="n" id="sum-correct">0</div><div class="l">вспомнил</div></div>
+          <div class="metric"><div class="n" id="sum-points">0</div><div class="l">+очков</div></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-ghost" id="sum-done-btn">Готово</button>
+          <button class="btn btn-primary" id="sum-again-btn">Ещё раз</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+<nav class="app-nav" id="app-nav" aria-label="Навигация"></nav>
+
+<script>
+(function () {
+  var ICONS = {
+    'home': '<path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/>',
+    'search': '<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/>',
+    'plus': '<path d="M12 5l0 14"/><path d="M5 12l14 0"/>',
+    'repeat': '<path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3"/><path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3"/>',
+    'book': '<path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0"/><path d="M3 6l0 13"/><path d="M12 6l0 13"/><path d="M21 6l0 13"/>',
+    'settings': '<path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M6 4v4"/><path d="M6 12v8"/><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M12 4v10"/><path d="M12 18v2"/><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M18 4v1"/><path d="M18 9v11"/>',
+    'chevron-right': '<path d="M9 6l6 6l-6 6"/>',
+    'chevron-left': '<path d="M15 6l-6 6l6 6"/>',
+    'arrow-right': '<path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/>',
+    'flame': '<path d="M12 12c2 -2.96 0 -7 -1 -8c0 3.038 -1.773 4.741 -3 6c-1.226 1.26 -2 3.24 -2 5a6 6 0 1 0 12 0c0 -1.532 -1.056 -3.94 -2 -5c-1.786 3 -2.791 3 -4 2z"/>',
+    'leaf': '<path d="M5 21c.5 -4.5 2.5 -8 7 -10"/><path d="M9 18c6.218 0 10.5 -3.288 11 -12v-2h-4.014c-9 0 -11.986 4 -12 9c0 1 0 3 2 5h3z"/>',
+    'alert': '<path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/>',
+    'clock': '<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M12 7v5l3 3"/>',
+    'check': '<path d="M5 12l5 5l10 -10"/>',
+    'volume': '<path d="M15 8a5 5 0 0 1 0 8"/><path d="M17.7 5a9 9 0 0 1 0 14"/><path d="M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5"/>'
+  };
+  function icon(name, size) {
+    size = size || 24;
+    return '<svg class="ic" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
+  }
+  function plural(n, one, few, many) {
+    var a = Math.abs(n) % 100, b = a % 10;
+    if (a > 10 && a < 20) return many;
+    if (b > 1 && b < 5) return few;
+    if (b === 1) return one;
+    return many;
+  }
+  function initials(name) {
+    var w = (name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2);
+    return w.map(function (x) { return x.charAt(0); }).join('').toUpperCase() || '?';
+  }
+  var TYPES = [
+    { id: 'film', label: 'Фильм', icon: '🎬', color: 'var(--t-film)' },
+    { id: 'series', label: 'Сериал', icon: '📺', color: 'var(--t-series)' },
+    { id: 'book', label: 'Книга', icon: '📖', color: 'var(--t-book)' },
+    { id: 'article', label: 'Статья', icon: '📰', color: 'var(--t-article)' },
+    { id: 'song', label: 'Песня', icon: '🎵', color: 'var(--t-song)' },
+    { id: 'talk', label: 'Разговор', icon: '💬', color: 'var(--t-talk)' },
+    { id: 'other', label: 'Другое', icon: '📦', color: 'var(--t-other)' }
+  ];
+  function typeInfo(id) { return TYPES.find(function (t) { return t.id === id; }) || TYPES[TYPES.length - 1]; }
+  // Встроенный список неправильных глаголов (~90 самых частых) — статичные
+  // данные, не требуют сервера. Формат: [начальная, прошедшее, причастие].
+  var IRREGULAR_LIST = [
+    ['be', 'was/were', 'been'], ['beat', 'beat', 'beaten'], ['become', 'became', 'become'],
+    ['begin', 'began', 'begun'], ['bend', 'bent', 'bent'], ['bet', 'bet', 'bet'],
+    ['bind', 'bound', 'bound'], ['bite', 'bit', 'bitten'], ['bleed', 'bled', 'bled'],
+    ['blow', 'blew', 'blown'], ['break', 'broke', 'broken'], ['bring', 'brought', 'brought'],
+    ['build', 'built', 'built'], ['burn', 'burnt', 'burnt'], ['buy', 'bought', 'bought'],
+    ['catch', 'caught', 'caught'], ['choose', 'chose', 'chosen'], ['come', 'came', 'come'],
+    ['cost', 'cost', 'cost'], ['cut', 'cut', 'cut'], ['dig', 'dug', 'dug'],
+    ['do', 'did', 'done'], ['draw', 'drew', 'drawn'], ['dream', 'dreamt', 'dreamt'],
+    ['drink', 'drank', 'drunk'], ['drive', 'drove', 'driven'], ['eat', 'ate', 'eaten'],
+    ['fall', 'fell', 'fallen'], ['feed', 'fed', 'fed'], ['feel', 'felt', 'felt'],
+    ['fight', 'fought', 'fought'], ['find', 'found', 'found'], ['fly', 'flew', 'flown'],
+    ['forget', 'forgot', 'forgotten'], ['forgive', 'forgave', 'forgiven'], ['freeze', 'froze', 'frozen'],
+    ['get', 'got', 'gotten'], ['give', 'gave', 'given'], ['go', 'went', 'gone'],
+    ['grow', 'grew', 'grown'], ['hang', 'hung', 'hung'], ['have', 'had', 'had'],
+    ['hear', 'heard', 'heard'], ['hide', 'hid', 'hidden'], ['hit', 'hit', 'hit'],
+    ['hold', 'held', 'held'], ['hurt', 'hurt', 'hurt'], ['keep', 'kept', 'kept'],
+    ['know', 'knew', 'known'], ['lay', 'laid', 'laid'], ['lead', 'led', 'led'],
+    ['leave', 'left', 'left'], ['lend', 'lent', 'lent'], ['let', 'let', 'let'],
+    ['lie', 'lay', 'lain'], ['light', 'lit', 'lit'], ['lose', 'lost', 'lost'],
+    ['make', 'made', 'made'], ['mean', 'meant', 'meant'], ['meet', 'met', 'met'],
+    ['pay', 'paid', 'paid'], ['put', 'put', 'put'], ['read', 'read', 'read'],
+    ['ride', 'rode', 'ridden'], ['ring', 'rang', 'rung'], ['rise', 'rose', 'risen'],
+    ['run', 'ran', 'run'], ['say', 'said', 'said'], ['see', 'saw', 'seen'],
+    ['sell', 'sold', 'sold'], ['send', 'sent', 'sent'], ['set', 'set', 'set'],
+    ['shake', 'shook', 'shaken'], ['shine', 'shone', 'shone'], ['shoot', 'shot', 'shot'],
+    ['show', 'showed', 'shown'], ['shut', 'shut', 'shut'], ['sing', 'sang', 'sung'],
+    ['sink', 'sank', 'sunk'], ['sit', 'sat', 'sat'], ['sleep', 'slept', 'slept'],
+    ['speak', 'spoke', 'spoken'], ['spend', 'spent', 'spent'], ['stand', 'stood', 'stood'],
+    ['steal', 'stole', 'stolen'], ['stick', 'stuck', 'stuck'], ['swim', 'swam', 'swum'],
+    ['take', 'took', 'taken'], ['teach', 'taught', 'taught'], ['tear', 'tore', 'torn'],
+    ['tell', 'told', 'told'], ['think', 'thought', 'thought'], ['throw', 'threw', 'thrown'],
+    ['understand', 'understood', 'understood'], ['wake', 'woke', 'woken'], ['wear', 'wore', 'worn'],
+    ['win', 'won', 'won'], ['write', 'wrote', 'written'],
+    ['quit', 'quit', 'quit'], ['spread', 'spread', 'spread'], ['split', 'split', 'split'], ['strike', 'struck', 'struck'],
+    ['swear', 'swore', 'sworn'], ['sweep', 'swept', 'swept'], ['swing', 'swung', 'swung'], ['shrink', 'shrank', 'shrunk'],
+    ['forbid', 'forbade', 'forbidden'], ['overcome', 'overcame', 'overcome']
+  ].sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
+  var IRREGULAR_VERBS = {};
+  IRREGULAR_LIST.forEach(function (v) { IRREGULAR_VERBS[v[0]] = { past: v[1], participle: v[2] }; });
+
+  // Удвоение конечной согласной: run -> running, stop -> stopped. Правило для
+  // коротких слов вида "согласная + одна гласная + одна согласная", плюс список
+  // двусложных слов с ударением на последнем слоге (begin, forget, prefer...).
+  var DOUBLE_EXC = { begin: 1, forget: 1, admit: 1, commit: 1, permit: 1, prefer: 1, refer: 1, occur: 1, control: 1, regret: 1, submit: 1, transfer: 1, equip: 1, upset: 1, forbid: 1, quit: 1, rebel: 1, compel: 1, expel: 1, patrol: 1, excel: 1 };
+  var THIRD_EXC = { have: 'has', be: 'is' };
+  function needsDouble(base) {
+    return !!DOUBLE_EXC[base] || /^[^aeiou]*[aeiou][^aeiouwxy]$/.test(base);
+  }
+  function reg3rd(base) {
+    if (THIRD_EXC[base]) return THIRD_EXC[base];
+    if (/[sxz]$|[cs]h$/.test(base)) return base + 'es';
+    if (/[^aeiou]y$/.test(base)) return base.slice(0, -1) + 'ies';
+    if (/o$/.test(base)) return base + 'es';
+    return base + 's';
+  }
+  function regIng(base) {
+    if (/ie$/.test(base)) return base.slice(0, -2) + 'ying';
+    if (/[^aeiou]e$/.test(base) && base !== 'be') return base.slice(0, -1) + 'ing';
+    if (needsDouble(base)) return base + base.slice(-1) + 'ing';
+    return base + 'ing';
+  }
+  function regPast(base) {
+    if (/e$/.test(base)) return base + 'd';
+    if (/[^aeiou]y$/.test(base)) return base.slice(0, -1) + 'ied';
+    if (needsDouble(base)) return base + base.slice(-1) + 'ed';
+    return base + 'ed';
+  }
+  // Определяет регулярность глагола и даёт объяснение для теста. base — любая
+  // известная форма слова (используем form_base, иначе root, иначе саму фразу).
+  // Фразовые глаголы (give up, look after...) — спрягается всегда первое
+  // слово, частица после него не меняется никогда.
+  function splitVerbPhrase(base) {
+    var parts = (base || '').trim().toLowerCase().split(/\s+/);
+    return { verb: parts[0] || '', rest: parts.slice(1).join(' ') };
+  }
+  function withRest(word, rest) { return rest ? word + ' ' + rest : word; }
+  // Считает все формы по начальной (учитывает неправильные и фразовые глаголы).
+  function computeVerbForms(baseStr) {
+    var parts = splitVerbPhrase(baseStr);
+    var irregular = IRREGULAR_VERBS[parts.verb];
+    return {
+      past: withRest(irregular ? irregular.past : regPast(parts.verb), parts.rest),
+      participle: withRest(irregular ? irregular.participle : regPast(parts.verb), parts.rest),
+      ing: withRest(regIng(parts.verb), parts.rest),
+      third: withRest(reg3rd(parts.verb), parts.rest)
+    };
+  }
+
+  // ---- Времена: построение формы глагола по уже сохранённым полям ----
+  var TENSE_LABELS = {
+    present_simple: 'Present Simple', present_continuous: 'Present Continuous',
+    past_simple: 'Past Simple', present_perfect: 'Present Perfect'
+  };
+  var SUBJECTS = ['I', 'You', 'He', 'She', 'It', 'We', 'They'];
+  function isThirdPersonSingular(subject) { return ['He', 'She', 'It'].indexOf(subject) !== -1; }
+  function auxBeForm(subject) { return subject === 'I' ? 'am' : isThirdPersonSingular(subject) ? 'is' : 'are'; }
+  function auxHaveForm(subject) { return isThirdPersonSingular(subject) ? 'has' : 'have'; }
+  function verbForms(item) {
+    var base = item.formBase || item.phrase;
+    return {
+      base: base,
+      third: item.form3rd || reg3rd(splitVerbPhrase(base).verb) + (splitVerbPhrase(base).rest ? ' ' + splitVerbPhrase(base).rest : ''),
+      ing: item.formIng || withRest(regIng(splitVerbPhrase(base).verb), splitVerbPhrase(base).rest),
+      past: item.formPast || withRest(regPast(splitVerbPhrase(base).verb), splitVerbPhrase(base).rest),
+      participle: item.formParticiple || item.formPast || withRest(regPast(splitVerbPhrase(base).verb), splitVerbPhrase(base).rest)
+    };
+  }
+  // Возвращает только сказуемое (без подлежащего) — так его удобнее вписывать в пропуск.
+  function buildTenseAnswer(item, tense, subject) {
+    var f = verbForms(item);
+    if (tense === 'present_simple') return isThirdPersonSingular(subject) ? f.third : f.base;
+    if (tense === 'past_simple') return f.past;
+    if (tense === 'present_continuous') return auxBeForm(subject) + ' ' + f.ing;
+    if (tense === 'present_perfect') return auxHaveForm(subject) + ' ' + f.participle;
+  }
+  function tenseEligible(item) {
+    var base = (item.formBase || '').trim().toLowerCase();
+    return item.isVerb && !!base && splitVerbPhrase(base).verb !== 'be';
+  }
+
+  function renderTensesTab() {
+    var el = document.getElementById('tenses-content');
+    var tenses = [
+      {
+        title: 'Present Simple', form: 'V1 (+s/-es)',
+        aff: 'She watches a new movie every Friday.',
+        neg: "She doesn't watch horror movies.",
+        q: 'Does she watch movies in English?',
+        usage: 'Привычки, факты, расписания — то, что происходит вообще, не обязательно прямо сейчас.'
+      },
+      {
+        title: 'Present Continuous', form: 'am/is/are + V-ing',
+        aff: "I'm watching a really good film right now.",
+        neg: "I'm not watching anything tonight.",
+        q: 'Are you watching something scary?',
+        usage: 'Происходит прямо сейчас или в этот период (даже если не в эту секунду).'
+      },
+      {
+        title: 'Past Simple', form: 'V2',
+        aff: 'We watched that thriller last weekend.',
+        neg: "We didn't finish the series.",
+        q: 'Did you watch the ending?',
+        usage: 'Законченное действие в прошлом — важно, что оно случилось, а не его связь с настоящим.'
+      },
+      {
+        title: 'Present Perfect', form: 'have/has + V3',
+        aff: "I've seen this movie three times.",
+        neg: "She hasn't watched the sequel yet.",
+        q: 'Have you ever watched a silent film?',
+        usage: 'Важен результат или опыт сейчас, а не когда именно это было. Аналога в русском нет — отсюда большинство ошибок.'
+      }
+    ];
+    function ex(tag, cls, text) {
+      return '<div class="tense-ex"><span class="tense-tag ' + cls + '">' + tag + '</span><span class="tense-sent">' + escapeHtml(text) + '</span><button type="button" class="speak-btn" data-text="' + escapeHtml(text) + '" aria-label="Прослушать">' + icon('volume', 16) + '</button></div>';
+    }
+    var html = '<div class="tense-grid">';
+    tenses.forEach(function (t) {
+      html += '<div class="tense-card"><div class="tense-top"><h3>' + t.title + '</h3><span class="tense-form">' + escapeHtml(t.form) + '</span></div>';
+      html += '<p class="usage">' + t.usage + '</p>';
+      html += ex('Утверждение', 'aff', t.aff) + ex('Отрицание', 'neg', t.neg) + ex('Вопрос', 'q', t.q);
+      html += '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+    attachSpeakButtons(el);
+  }
+
+  function verbRegularityInfo(base) {
+    var key = (base || '').trim().toLowerCase();
+    if (!key) return null;
+    var parts = splitVerbPhrase(key);
+    var irregular = IRREGULAR_VERBS[parts.verb];
+    if (irregular) {
+      var pastFull = withRest(irregular.past, parts.rest);
+      var partFull = withRest(irregular.participle, parts.rest);
+      return {
+        irregular: true, label: 'неправильный', color: 'var(--danger)',
+        explanation: '«' + key + '» — неправильный глагол' + (parts.rest ? ' (от «' + parts.verb + '»)' : '') + ', формы (' + pastFull + ' / ' + partFull + ') не по правилу, их нужно просто запомнить.'
+      };
+    }
+    var pastFullReg = withRest(regPast(parts.verb), parts.rest);
+    return {
+      irregular: false, label: 'правильный', color: 'var(--ok)',
+      explanation: '«' + key + '» — правильный глагол, прошедшее время и причастие образуются по общему правилу (+ed: ' + pastFullReg + ').'
+    };
+  }
+
+  var POS = [
+    { id: 'verb', label: 'Глагол', color: 'var(--pos-verb)' },
+    { id: 'noun', label: 'Существительное', color: 'var(--pos-noun)' },
+    { id: 'adj', label: 'Прилагательное', color: 'var(--pos-adj)' },
+    { id: 'adv', label: 'Наречие', color: 'var(--pos-adv)' },
+    { id: 'other', label: 'Другое', color: 'var(--pos-other)' }
+  ];
+  function posInfo(id) { return POS.find(function (p) { return p.id === id; }) || null; }
+  function sourceMap() { var m = {}; sources.forEach(function (s) { m[s.id] = s; }); return m; }
+  function itemTypeId(item, srcMap) {
+    var map = srcMap || sourceMap();
+    var src = item.sourceId ? map[item.sourceId] : null;
+    return src ? src.type : 'other';
+  }
+
+  var data = [];
+  var sources = [];
+  var ready = false;
+  var activeTags = {};
+  var activeCardTypes = {};
+  var cardsSourceFilter = '';
+  var selectedType = 'film';
+  var selectedPos = '';
+  var leechFilterOn = false;
+  var irregularFilterOn = false;
+  var newOnlyFilter = false;
+  var searchTerm = '';
+  var familiesSearchTerm = '';
+
+  var STORAGE_KEY_SERVER = 'vocab_server_url';
+  var STORAGE_KEY_TOKEN = 'vocab_api_key';
+  var STORAGE_KEY_STATS = 'vocab_local_stats';
+  var STORAGE_KEY_NAME = 'vocab_user_name';
+  var STORAGE_KEY_THEME = 'vocab_theme';
+
+  function getServer() { return localStorage.getItem(STORAGE_KEY_SERVER) || document.getElementById('s-server').value; }
+  function getKey() { return localStorage.getItem(STORAGE_KEY_TOKEN) || ''; }
+
+  var profile = { streak: 0, points: 0, lastActiveDate: null };
+  function loadProfile() { try { var raw = localStorage.getItem(STORAGE_KEY_STATS); if (raw) profile = JSON.parse(raw); } catch (e) {} }
+  function saveProfile() { try { localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(profile)); } catch (e) {} }
+  function renderStats() { if (typeof views !== 'undefined' && views && views.home && views.home.classList.contains('active')) renderHome(); }
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function recordActivity(pointsDelta) {
+    var today = todayStr();
+    var newStreak = profile.streak || 0;
+    if (profile.lastActiveDate !== today) {
+      var yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      newStreak = (profile.lastActiveDate === yesterday) ? newStreak + 1 : 1;
+    }
+    profile = { streak: newStreak, points: (profile.points || 0) + pointsDelta, lastActiveDate: today };
+    renderStats(); saveProfile();
+    return pointsDelta;
+  }
+
+  var statusBanner = document.getElementById('status-banner');
+  function showStatus(text) { statusBanner.textContent = text; statusBanner.classList.add('show'); }
+  function clearStatus() { statusBanner.classList.remove('show'); statusBanner.textContent = ''; }
+  function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+  // ---- Text-to-speech ----
+  function speak(text) {
+    if (!text || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  function attachSpeakButtons(el) {
+    el.querySelectorAll('.speak-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        speak(btn.getAttribute('data-text'));
+      });
+    });
+  }
+
+  // ---- Settings ----
+  document.getElementById('s-save').addEventListener('click', function () {
+    var server = document.getElementById('s-server').value.trim().replace(/\/+$/, '');
+    var key = document.getElementById('s-key').value.trim();
+    var name = document.getElementById('s-name').value.trim();
+    if (server) localStorage.setItem(STORAGE_KEY_SERVER, server);
+    if (key) localStorage.setItem(STORAGE_KEY_TOKEN, key);
+    localStorage.setItem(STORAGE_KEY_NAME, name);
+    document.getElementById('s-status').textContent = 'Сохранено.';
+    setTimeout(function () { document.getElementById('s-status').textContent = ''; }, 2000);
+    init();
+    navigate('home');
+  });
+
+  // ---- Тема ----
+  function getTheme() { return localStorage.getItem(STORAGE_KEY_THEME) || 'dark'; }
+  function applyTheme(t) {
+    var root = document.documentElement;
+    if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+    refreshThemeSeg();
+    updateThemeColor();
+  }
+  function setTheme(t) { try { localStorage.setItem(STORAGE_KEY_THEME, t); } catch (e) {} applyTheme(t); }
+  // Цвет системной строки (там, где часы) подстраивается под выбранную тему
+  function updateThemeColor() {
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (!m) return;
+    var bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+    if (bg) m.setAttribute('content', bg);
+  }
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', updateThemeColor);
+  }
+
+  // ---- Установка на главный экран ----
+  var deferredInstall = null;
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function refreshInstallCard() {
+    var hint = document.getElementById('install-hint');
+    var btn = document.getElementById('install-btn');
+    if (!hint || !btn) return;
+    btn.style.display = 'none';
+    if (isStandalone()) { hint.textContent = 'Приложение уже установлено и открыто как отдельное.'; return; }
+    if (location.protocol === 'file:') { hint.textContent = 'Установка работает, только когда приложение открыто по https-ссылке (например, с GitHub Pages). С локального файла Chrome её не предлагает.'; return; }
+    if (deferredInstall) { hint.textContent = 'Добавит значок на главный экран. Приложение будет открываться без адресной строки.'; btn.style.display = ''; return; }
+    hint.textContent = 'Если кнопки нет, открой меню Chrome (три точки) и выбери «Установить приложение» или «Добавить на главный экран».';
+  }
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferredInstall = e; refreshInstallCard(); });
+  window.addEventListener('appinstalled', function () { deferredInstall = null; refreshInstallCard(); });
+  document.getElementById('install-btn').addEventListener('click', function () {
+    if (!deferredInstall) return;
+    deferredInstall.prompt();
+    var done = function () { deferredInstall = null; refreshInstallCard(); };
+    if (deferredInstall.userChoice && deferredInstall.userChoice.then) deferredInstall.userChoice.then(done, done); else done();
+  });
+  function refreshThemeSeg() {
+    var cur = getTheme();
+    document.querySelectorAll('[data-theme-choice]').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-theme-choice') === cur); });
+  }
+  document.getElementById('backup-btn').addEventListener('click', async function () {
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Готовлю файл...';
+    try {
+      var phrases = await api('/phrases');
+      var srcs = await api('/sources');
+      var blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), sources: srcs, phrases: phrases }, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'vocab-backup-' + todayStr() + '.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Не удалось скачать резервную копию: ' + e.message);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Скачать резервную копию';
+    }
+  });
+
+  // ---- API ----
+  async function api(path, options) {
+    options = options || {};
+    var headers = Object.assign({}, options.headers || {}, { 'x-api-key': getKey() });
+    var res = await fetch(getServer() + path, Object.assign({}, options, { headers: headers }));
+    if (!res.ok) {
+      var msg = 'Ошибка ' + res.status;
+      try { var j = await res.json(); if (j.detail) msg = j.detail; } catch (e) {}
+      throw new Error(msg);
+    }
+    if (res.status === 204) return null;
+    return res.json();
+  }
+
+  async function loadAll() {
+    try {
+      var list = await api('/phrases');
+      data = list.map(function (b) {
+        var examples = Array.isArray(b.examples) ? b.examples : (b.example ? [{ text: b.example, translation: '' }] : []);
+        return {
+          id: b.id, episode: b.episode || '', sourceId: b.source_id || null,
+          phrase: b.phrase || '', note: b.note || '', examples: examples,
+          translation: b.translation || '', tags: Array.isArray(b.themes) ? b.themes : [],
+          root: b.root || '', pos: b.pos || '', videoFilename: b.video_filename || null, used: !!b.used,
+          isVerb: !!b.is_verb, formBase: b.form_base || '', formPast: b.form_past || '',
+          formParticiple: b.form_participle || '', formIng: b.form_ing || '', form3rd: b.form_3rd || '',
+          interval: b.interval || 0, dueAt: b.due_at || 0, reps: b.reps || 0, failStreak: b.fail_streak || 0
+        };
+      });
+      sources = await api('/sources');
+      clearStatus(); ready = true;
+      renderTagRow('list-tag-row'); renderTagRow('cards-tag-row');
+      renderCardsTypeChips(); renderCardsSourceSelect();
+      renderSourceOptions();
+      renderSessionHero();
+      renderHome();
+      if (views.reference.classList.contains('active')) renderReference();
+      if (views.list.classList.contains('active')) renderList();
+      if (views.families.classList.contains('active')) renderFamilies();
+      if (views.irregular.classList.contains('active')) renderIrregularList();
+      if (views.cards.classList.contains('active')) rebuildManualIfStale(true);
+    } catch (e) {
+      ready = false;
+      showStatus('Не удалось связаться с сервером (' + e.message + '). Проверь адрес и ключ в настройках и соединение с интернетом.');
+      renderList(); renderFamilies(); renderHome();
+    }
+  }
+
+  async function init() {
+    document.getElementById('s-server').value = getServer();
+    document.getElementById('s-key').value = getKey();
+    document.getElementById('s-name').value = localStorage.getItem(STORAGE_KEY_NAME) || '';
+    refreshThemeSeg(); updateThemeColor(); refreshInstallCard();
+    loadProfile(); renderStats();
+    if (!getKey()) {
+      showStatus('Впиши секретный ключ сервера в настройках, чтобы начать.');
+      navigate('settings');
+      return;
+    }
+    renderHome();
+    if (!goApplied) {
+      goApplied = true;
+      var go = new URLSearchParams(location.search).get('go');
+      if (go && views[go] && go !== 'settings') { navigate(go, true); try { history.replaceState({ v: go }, ''); } catch (err) {} }
+    }
+    await loadAll();
+  }
+
+  // ---- Навигация ----
+  var views = {
+    home: document.getElementById('view-home'), reference: document.getElementById('view-reference'),
+    settings: document.getElementById('view-settings'), add: document.getElementById('view-add'),
+    list: document.getElementById('view-list'), families: document.getElementById('view-families'),
+    irregular: document.getElementById('view-irregular'), tenses: document.getElementById('view-tenses'),
+    cards: document.getElementById('view-cards')
+  };
+  var NAV_PARENT = { home: 'home', settings: 'home', list: 'list', add: 'add', cards: 'cards', reference: 'reference', families: 'reference', irregular: 'reference', tenses: 'reference' };
+  var VIEW_TITLES = { add: 'Новая фраза', list: 'Каталог', cards: 'Повторение', reference: 'Справочник', families: 'Семьи слов', irregular: 'Неправильные глаголы', tenses: 'Времена', settings: 'Настройки' };
+  var VIEW_BACK = { families: 'reference', irregular: 'reference', tenses: 'reference', settings: 'home' };
+  var NAV_ITEMS = [
+    { v: 'home', label: 'Главная', icon: 'home' }, { v: 'list', label: 'Каталог', icon: 'search' },
+    { v: 'add', label: 'Добавить', icon: 'plus', add: true }, { v: 'cards', label: 'Повторение', icon: 'repeat' },
+    { v: 'reference', label: 'Справочник', icon: 'book' }
+  ];
+  var currentView = 'home';
+  var histPushed = 0;
+  var goApplied = false;
+
+  document.getElementById('app-nav').innerHTML = NAV_ITEMS.map(function (n) {
+    return '<button class="nav-item' + (n.add ? ' add' : '') + '" data-view="' + n.v + '" data-nav="' + n.v + '">' +
+      (n.add ? '<span class="nav-plus">' + icon(n.icon, 24) + '</span>' : icon(n.icon, 24)) + '<span>' + n.label + '</span></button>';
+  }).join('');
+  document.getElementById('back-btn').innerHTML = icon('chevron-left', 24);
+  updateNav(); updateHead('home');
+
+  function cardsInProgress() {
+    return document.getElementById('session-active').style.display === '' || document.getElementById('session-summary').style.display === '';
+  }
+  function updateNav() {
+    var parent = NAV_PARENT[currentView];
+    document.querySelectorAll('#app-nav .nav-item').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-nav') === parent); });
+  }
+  function updateHead(v) {
+    var head = document.getElementById('screen-head');
+    var back = document.getElementById('back-btn');
+    if (v === 'home') { head.style.display = 'none'; return; }
+    head.style.display = 'flex';
+    document.getElementById('screen-title').textContent = VIEW_TITLES[v] || '';
+    back.classList.toggle('show', !!VIEW_BACK[v]);
+  }
+  function navigate(v, fromPop) {
+    if (!views[v]) return;
+    var prevView = currentView;
+    var sameCards = (v === 'cards' && currentView === 'cards');
+    Object.keys(views).forEach(function (k) { views[k].classList.remove('active'); });
+    views[v].classList.add('active');
+    currentView = v;
+    // Каждый экран — запись в истории, поэтому системная кнопка «Назад» возвращает на предыдущий экран, а не закрывает приложение
+    if (!fromPop && v !== prevView) { try { history.pushState({ v: v }, ''); histPushed++; } catch (err) {} }
+    updateNav(); updateHead(v);
+    window.scrollTo(0, 0);
+    if (v === 'home') renderHome();
+    if (v === 'list') renderList();
+    if (v === 'families') renderFamilies();
+    if (v === 'irregular') renderIrregularList();
+    if (v === 'tenses') renderTensesTab();
+    if (v === 'reference') renderReference();
+    if (v === 'settings') { refreshThemeSeg(); refreshInstallCard(); }
+    if (v === 'cards') {
+      // Уже идёт тест — возвращаемся к нему; повторный тап по вкладке выходит на стартовый экран.
+      if (sameCards || !cardsInProgress()) showSessionStartScreen();
+      renderSessionHero(); renderModeDesc(); renderCardsTypeChips(); renderCardsSourceSelect(); renderTagRow('cards-tag-row');
+    }
+  }
+
+  window.addEventListener('popstate', function (e) {
+    var v = (e.state && e.state.v) || 'home';
+    if (histPushed > 0) histPushed--;
+    navigate(v, true);
+  });
+  try { history.replaceState({ v: 'home' }, ''); } catch (err) {}
+
+  // Один обработчик кликов на всё приложение (делегирование)
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-view]');
+    if (t) { navigate(t.getAttribute('data-view')); return; }
+    if (e.target.closest('#back-btn')) { if (histPushed > 0) history.back(); else navigate(VIEW_BACK[currentView] || 'home'); return; }
+    var th = e.target.closest('[data-theme-choice]');
+    if (th) { setTheme(th.getAttribute('data-theme-choice')); return; }
+    var hs = e.target.closest('[data-home-start]');
+    if (hs) { startFromHome(hs.getAttribute('data-home-start')); return; }
+    var src = e.target.closest('[data-home-source]');
+    if (src) { openCatalogForSource(src.getAttribute('data-home-source')); return; }
+    if (e.target.closest('[data-clear-source]')) { catalogSourceFilter = ''; renderList(); return; }
+  });
+  // На телефоне прячем нижнюю панель, пока открыта клавиатура
+  document.addEventListener('focusin', function (e) {
+    if (e.target.matches && e.target.matches('input, textarea, select')) document.getElementById('app-nav').classList.add('kb');
+  });
+  document.addEventListener('focusout', function () {
+    setTimeout(function () {
+      var a = document.activeElement;
+      if (!(a && a.matches && a.matches('input, textarea, select'))) document.getElementById('app-nav').classList.remove('kb');
+    }, 120);
+  });
+
+  // ---- Главная ----
+  var catalogSourceFilter = '';
+  function renderHome() {
+    var el = document.getElementById('home-content');
+    if (!el) return;
+    var now = Date.now();
+    var total = data.length;
+    var due = data.filter(function (i) { return i.dueAt <= now; }).length;
+    var newCount = data.filter(isNewItem).length;
+    var weakCount = data.filter(isLeech).length;
+    var mastered = data.filter(function (i) { return (i.interval || 0) >= 15; }).length;
+    var pct = total ? Math.round(mastered / total * 100) : 0;
+    var streak = profile.streak || 0;
+    var srcs = sources.slice().sort(function (a, b) { return (b.created_at || 0) - (a.created_at || 0); }).slice(0, 8);
+    var name = (localStorage.getItem(STORAGE_KEY_NAME) || '').trim();
+
+    var html = '<div class="home-top"><button class="icon-btn" data-view="settings" aria-label="Настройки">' + icon('settings', 22) + '</button></div>';
+    html += '<div class="stories">';
+    srcs.forEach(function (s) {
+      var t = typeInfo(s.type);
+      html += '<button class="story" data-home-source="' + s.id + '"><span class="story-ring">';
+      if (s.image_filename) html += '<img src="' + getServer() + '/images/' + s.image_filename + '" alt="">';
+      else html += '<span class="story-fallback" style="background:' + t.color + '">' + escapeHtml(initials(s.name)) + '</span>';
+      html += '</span><span class="story-name">' + escapeHtml(s.name) + '</span></button>';
+    });
+    html += '<button class="story" data-view="add"><span class="story-ring plus">' + icon('plus', 26) + '</span><span class="story-name">Новая</span></button>';
+    html += '</div>';
+
+    html += '<button class="home-name" data-view="settings">' + escapeHtml(name || 'Мой словарь') + icon('chevron-right', 24) + '</button>';
+
+    html += '<div class="stat-row">';
+    html += '<div class="stat-card"><div class="stat-val warm"><span id="stat-streak">' + streak + '</span>' + icon('flame', 22) + '</div><div class="stat-lbl">' + plural(streak, 'день', 'дня', 'дней') + ' подряд</div></div>';
+    html += '<div class="stat-card wide"><div class="stat-val"><span>' + pct + '%</span><span class="bar"><span style="width:' + pct + '%"></span></span></div><div class="stat-lbl">освоено: ' + mastered + ' из ' + total + '</div></div>';
+    html += '<div class="stat-card"><div class="stat-val"><span id="stat-points">' + (profile.points || 0) + '</span></div><div class="stat-lbl">очков</div></div>';
+    html += '</div>';
+
+    html += '<div class="hero-card"><div class="hero-title">К повторению: ' + due + '<span class="pill-tag">Сегодня</span></div>';
+    if (total) {
+      html += '<div class="hero-sub">' + (due ? 'Новых слов ' + newCount + ', слабых мест ' + weakCount : 'На сегодня всё. Можно повторить ещё раз вне очереди.') + '</div>';
+      html += '<button class="hero-btn" data-home-start="all">Начать повторение</button>';
+    } else {
+      html += '<div class="hero-sub">Пока пусто. Добавь первую фразу, чтобы начать.</div>';
+      html += '<button class="hero-btn" data-view="add">Добавить фразу</button>';
+    }
+    html += '</div>';
+
+    html += '<div class="section-head"><h2>Словарь</h2><button class="circle-btn" data-view="list" aria-label="Открыть каталог">' + icon('arrow-right', 18) + '</button></div>';
+    html += '<div class="row-card"><div><div class="row-title">' + total + ' ' + plural(total, 'фраза', 'фразы', 'фраз') + '</div><div class="row-sub">в твоём словаре</div></div><button class="pill-btn" data-view="add">Добавить</button></div>';
+    html += '<div class="quick-grid">';
+    html += '<button class="quick-card leaf' + (newCount ? '' : ' empty') + '" data-home-start="new"><div class="qv"><span>' + newCount + '</span>' + icon('leaf', 22) + '</div><div class="ql">Новые</div></button>';
+    html += '<button class="quick-card weak' + (weakCount ? '' : ' empty') + '" data-home-start="weak"><div class="qv"><span>' + weakCount + '</span>' + icon('alert', 22) + '</div><div class="ql">Слабые места</div></button>';
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  function startFromHome(kind) {
+    var pool = kind === 'new' ? data.filter(isNewItem) : kind === 'weak' ? data.filter(isLeech) : data.slice();
+    if (!pool.length) return;
+    navigate('cards');
+    startAutoSession(pool);
+  }
+  function openCatalogForSource(id) { catalogSourceFilter = id; navigate('list'); }
+
+  // ---- Справочник ----
+  function renderReference() {
+    var el = document.getElementById('reference-content');
+    var roots = {};
+    data.forEach(function (i) { var k = (i.root || '').trim().toLowerCase(); if (k) roots[k] = true; });
+    var famCount = Object.keys(roots).length;
+    var irrInDict = data.filter(isIrregularItem).length;
+    var rows = [
+      { v: 'families', ic: 'leaf', title: 'Семьи слов', sub: famCount ? famCount + ' ' + plural(famCount, 'семья', 'семьи', 'семей') + ' в твоём словаре' : 'Связывай однокоренные слова' },
+      { v: 'irregular', ic: 'alert', title: 'Неправильные глаголы', sub: IRREGULAR_LIST.length + ' глаголов, ' + irrInDict + ' из них в твоём словаре' },
+      { v: 'tenses', ic: 'clock', title: 'Времена', sub: '4 основных времени с примерами' }
+    ];
+    el.innerHTML = '<div class="ref-list">' + rows.map(function (r) {
+      return '<button class="ref-row" data-view="' + r.v + '"><span class="ref-ic">' + icon(r.ic, 22) + '</span><span class="ref-body"><span class="ref-title">' + r.title + '</span><span class="ref-sub">' + r.sub + '</span></span>' + icon('chevron-right', 20) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  // ---- Type chips (add form) ----
+  var typeChipsEl = document.getElementById('type-chips');
+  typeChipsEl.innerHTML = TYPES.map(function (t) {
+    return '<button type="button" class="type-chip" data-type="' + t.id + '" style="--c:' + t.color + '">' + t.icon + ' ' + t.label + '</button>';
+  }).join('');
+  function refreshTypeChipStyles() {
+    typeChipsEl.querySelectorAll('.type-chip').forEach(function (chip) {
+      var active = chip.getAttribute('data-type') === selectedType;
+      chip.classList.toggle('active', active);
+      chip.style.background = active ? chip.style.getPropertyValue('--c') : '';
+      chip.style.borderColor = active ? chip.style.getPropertyValue('--c') : '';
+    });
+  }
+  refreshTypeChipStyles();
+  typeChipsEl.querySelectorAll('.type-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      selectedType = chip.getAttribute('data-type');
+      refreshTypeChipStyles();
+      renderSourceOptions();
+    });
+  });
+  var posChipsEl = document.getElementById('pos-chips');
+  posChipsEl.innerHTML = POS.map(function (p) {
+    return '<button type="button" class="pos-chip" data-pos="' + p.id + '" style="--c:' + p.color + '">' + p.label + '</button>';
+  }).join('');
+  function refreshPosChipStyles() {
+    posChipsEl.querySelectorAll('.pos-chip').forEach(function (chip) {
+      var active = chip.getAttribute('data-pos') === selectedPos;
+      chip.classList.toggle('active', active);
+      chip.style.background = active ? chip.style.getPropertyValue('--c') : '';
+      chip.style.borderColor = active ? chip.style.getPropertyValue('--c') : '';
+    });
+  }
+  posChipsEl.querySelectorAll('.pos-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+      var id = chip.getAttribute('data-pos');
+      selectedPos = (selectedPos === id) ? '' : id;
+      refreshPosChipStyles();
+    });
+  });
+
+  function renderSourceOptions() {
+    var dl = document.getElementById('source-name-options');
+    var names = sources.filter(function (s) { return s.type === selectedType; }).map(function (s) { return s.name; });
+    dl.innerHTML = names.map(function (n) { return '<option value="' + escapeHtml(n) + '">'; }).join('');
+  }
+
+  // ---- Verb forms toggle ----
+  var verbCheckbox = document.getElementById('f-is-verb');
+  var verbFormsEl = document.getElementById('verb-forms');
+  verbCheckbox.addEventListener('change', function () { verbFormsEl.classList.toggle('show', verbCheckbox.checked); });
+
+  // Поля, которые приложение заполняет само, помечаются data-auto. Пока ты не
+  // начал править такое поле руками — оно пересчитывается на каждую новую букву
+  // в "Начальной" форме. Как только вписал что-то своё — поле больше не трогаем.
+  ['f-form-past', 'f-form-participle', 'f-form-ing', 'f-form-3rd'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () { this.removeAttribute('data-auto'); });
+  });
+  function setAutoField(el, value) {
+    if (!el.value.trim() || el.getAttribute('data-auto')) { el.value = value; el.setAttribute('data-auto', '1'); }
+  }
+  document.getElementById('f-form-base').addEventListener('input', function () {
+    var base = this.value.trim().toLowerCase();
+    var hint = document.getElementById('verb-regularity-hint');
+    var fields = [document.getElementById('f-form-past'), document.getElementById('f-form-participle'), document.getElementById('f-form-ing'), document.getElementById('f-form-3rd')];
+    if (!base) {
+      fields.forEach(function (el) { if (el.getAttribute('data-auto')) { el.value = ''; el.removeAttribute('data-auto'); } });
+      hint.innerHTML = '';
+      return;
+    }
+    var info = verbRegularityInfo(base);
+    var forms = computeVerbForms(base);
+    setAutoField(fields[0], forms.past);
+    setAutoField(fields[1], forms.participle);
+    setAutoField(fields[2], forms.ing);
+    setAutoField(fields[3], forms.third);
+    hint.innerHTML = '<span class="verb-reg-badge" style="background:' + info.color + '">' + info.label + '</span>Формы подставлены автоматически — проверь и поправь при необходимости.';
+  });
+
+  // ---- Tag / leech filter (shared list + cards) ----
+  function allTags() {
+    var set = {};
+    data.forEach(function (item) { (item.tags || []).forEach(function (t) { set[t] = true; }); });
+    return Object.keys(set).sort();
+  }
+  function isLeech(item) { return (item.failStreak || 0) >= 4; }
+  function isIrregularItem(item) {
+    if (!item.isVerb) return false;
+    var info = verbRegularityInfo(item.formBase || item.root || item.phrase);
+    return !!(info && info.irregular);
+  }
+  function isNewItem(item) { return (item.reps || 0) === 0 && (item.interval || 0) === 0; }
+  function passesTagFilter(item) {
+    var selected = Object.keys(activeTags).filter(function (t) { return activeTags[t]; });
+    if (selected.length && !(item.tags || []).some(function (t) { return activeTags[t]; })) return false;
+    if (leechFilterOn && !isLeech(item)) return false;
+    return true;
+  }
+  function renderTagRow(elId) {
+    var el = document.getElementById(elId);
+    var tags = allTags();
+    var leechCount = data.filter(isLeech).length;
+    var html = tags.map(function (t) {
+      return '<span class="tag-chip' + (activeTags[t] ? ' active' : '') + '" data-tag="' + escapeHtml(t) + '">' + escapeHtml(t) + '</span>';
+    }).join('');
+    if (leechCount) html += '<span class="tag-chip warn-chip' + (leechFilterOn ? ' active' : '') + '" data-leech="1">⚠ Слабые места (' + leechCount + ')</span>';
+    if (elId === 'cards-tag-row') {
+      var newCount = data.filter(isNewItem).length;
+      html += '<span class="tag-chip' + (newOnlyFilter ? ' active' : '') + '" data-newonly="1">🌱 Только новые (' + newCount + ')</span>';
+      var irregularCount = data.filter(isIrregularItem).length;
+      if (irregularCount) html += '<span class="tag-chip warn-chip' + (irregularFilterOn ? ' active' : '') + '" data-irregular="1">⚠ Неправильные (' + irregularCount + ')</span>';
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('[data-tag]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var t = chip.getAttribute('data-tag');
+        activeTags[t] = !activeTags[t];
+        renderTagRow('list-tag-row'); renderTagRow('cards-tag-row');
+        if (views.list.classList.contains('active')) renderList();
+        rebuildManualIfStale(true); renderSessionHero();
+      });
+    });
+    el.querySelectorAll('[data-leech]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        leechFilterOn = !leechFilterOn;
+        renderTagRow('list-tag-row'); renderTagRow('cards-tag-row');
+        if (views.list.classList.contains('active')) renderList();
+        rebuildManualIfStale(true); renderSessionHero();
+      });
+    });
+    el.querySelectorAll('[data-newonly]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        newOnlyFilter = !newOnlyFilter;
+        renderTagRow('cards-tag-row');
+        rebuildManualIfStale(true); renderSessionHero();
+      });
+    });
+    el.querySelectorAll('[data-irregular]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        irregularFilterOn = !irregularFilterOn;
+        renderTagRow('cards-tag-row');
+        rebuildManualIfStale(true); renderSessionHero();
+      });
+    });
+  }
+
+  // ---- Search (Каталог) ----
+  document.getElementById('catalog-search').addEventListener('input', function () {
+    searchTerm = this.value.trim().toLowerCase();
+    renderList();
+  });
+  function passesSearch(item) {
+    if (!searchTerm) return true;
+    var exText = (item.examples || []).map(function (ex) { return ex.text + ' ' + ex.translation; }).join(' ');
+    var hay = (item.phrase + ' ' + item.translation + ' ' + exText).toLowerCase();
+    return hay.indexOf(searchTerm) !== -1;
+  }
+  document.getElementById('families-search').addEventListener('input', function () {
+    familiesSearchTerm = this.value.trim().toLowerCase();
+    renderFamilies();
+  });
+
+  // ---- Root suggestion ----
+  document.getElementById('f-phrase').addEventListener('input', handleRootSuggest);
+  function knownRoots() {
+    var set = {};
+    data.forEach(function (item) { if (item.root) set[item.root] = true; if (item.phrase) set[item.phrase] = true; });
+    return Object.keys(set);
+  }
+  var rootInputEl = document.getElementById('f-root');
+  var rootSuggestEl = document.getElementById('root-suggest');
+  var rootSuggestTextEl = document.getElementById('root-suggest-text');
+  var suggestedRoot = '';
+  function handleRootSuggest() {
+    var val = document.getElementById('f-phrase').value.trim().toLowerCase();
+    rootSuggestEl.classList.remove('show');
+    if (val.length < 3 || rootInputEl.value.trim()) return;
+    var roots = knownRoots();
+    for (var i = 0; i < roots.length; i++) {
+      var r = roots[i].toLowerCase();
+      if (r.length >= 3 && r !== val && (val.indexOf(r) === 0 || r.indexOf(val) === 0)) {
+        suggestedRoot = roots[i];
+        rootSuggestTextEl.textContent = 'Похоже, это форма от «' + roots[i] + '» —';
+        rootSuggestEl.classList.add('show');
+        break;
+      }
+    }
+  }
+  document.getElementById('root-suggest-btn').addEventListener('click', function () {
+    rootInputEl.value = suggestedRoot;
+    rootSuggestEl.classList.remove('show');
+  });
+
+  // ---- Resolve / create source ----
+  async function resolveSourceId(type, name, imageFile) {
+    if (!name) return null;
+    var existing = sources.find(function (s) { return s.type === type && s.name.toLowerCase() === name.toLowerCase(); });
+    var sourceId;
+    if (existing) { sourceId = existing.id; }
+    else {
+      var created = await api('/sources', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: type, name: name }) });
+      sources.push(created); sourceId = created.id;
+    }
+    if (imageFile) {
+      var fd = new FormData(); fd.append('file', imageFile);
+      var updated = await api('/sources/' + sourceId + '/image', { method: 'POST', body: fd });
+      var idx = sources.findIndex(function (s) { return s.id === sourceId; });
+      if (idx !== -1) sources[idx] = updated;
+    }
+    return sourceId;
+  }
+
+  // ---- Add form ----
+  var addBtn = document.getElementById('add-btn');
+  var formStatus = document.getElementById('form-status');
+  addBtn.addEventListener('click', async function () {
+    if (!getKey()) { formStatus.textContent = 'Сначала впиши ключ в настройках.'; return; }
+    var sourceNameEl = document.getElementById('f-source-name');
+    var sourceImageEl = document.getElementById('f-source-image');
+    var phraseEl = document.getElementById('f-phrase');
+    var translationEl = document.getElementById('f-translation');
+    var exampleEl = document.getElementById('f-example');
+    var exampleTranslationEl = document.getElementById('f-example-translation');
+    var noteEl = document.getElementById('f-note');
+    var rootEl = document.getElementById('f-root');
+    var tagsEl = document.getElementById('f-tags');
+    var videoEl = document.getElementById('f-video');
+
+    var sourceName = sourceNameEl.value.trim();
+    var phrase = phraseEl.value.trim();
+    var translation = translationEl.value.trim();
+    var example = exampleEl.value.trim();
+    var exampleTranslation = exampleTranslationEl.value.trim();
+    var note = noteEl.value.trim();
+    var root = rootEl.value.trim();
+    var themes = tagsEl.value.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+    var videoFile = videoEl.files && videoEl.files[0];
+    var imageFile = sourceImageEl.files && sourceImageEl.files[0];
+    var isVerb = verbCheckbox.checked;
+
+    if (!phrase) { phraseEl.focus(); return; }
+    if (videoFile && videoFile.size > 20 * 1024 * 1024) { formStatus.textContent = 'Видео больше 20 МБ.'; return; }
+    if (imageFile && imageFile.size > 20 * 1024 * 1024) { formStatus.textContent = 'Картинка больше 20 МБ.'; return; }
+
+    addBtn.disabled = true;
+    try {
+      var sourceId = null;
+      if (sourceName) { formStatus.textContent = 'Сохраняю источник...'; sourceId = await resolveSourceId(selectedType, sourceName, imageFile); }
+
+      formStatus.textContent = 'Сохраняю фразу...';
+      var created = await api('/phrases', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          episode: sourceName, source_id: sourceId, phrase: phrase, note: note,
+          example: example, example_translation: exampleTranslation, translation: translation,
+          themes: themes, root: root, pos: selectedPos,
+          is_verb: isVerb,
+          form_base: document.getElementById('f-form-base').value.trim(),
+          form_past: document.getElementById('f-form-past').value.trim(),
+          form_participle: document.getElementById('f-form-participle').value.trim(),
+          form_ing: document.getElementById('f-form-ing').value.trim(),
+          form_3rd: document.getElementById('f-form-3rd').value.trim()
+        })
+      });
+
+      if (videoFile) {
+        formStatus.textContent = 'Загружаю видео...';
+        var fd = new FormData(); fd.append('file', videoFile);
+        await api('/phrases/' + created.id + '/video', { method: 'POST', body: fd });
+      }
+
+      recordActivity(5);
+      phraseEl.value = ''; translationEl.value = ''; exampleEl.value = ''; exampleTranslationEl.value = ''; noteEl.value = '';
+      rootEl.value = ''; tagsEl.value = ''; videoEl.value = ''; sourceImageEl.value = '';
+      verbCheckbox.checked = false; verbFormsEl.classList.remove('show');
+      ['f-form-base', 'f-form-past', 'f-form-participle', 'f-form-ing', 'f-form-3rd'].forEach(function (id) { var f = document.getElementById(id); f.value = ''; f.removeAttribute('data-auto'); });
+      rootSuggestEl.classList.remove('show');
+      selectedPos = ''; refreshPosChipStyles();
+      formStatus.textContent = 'Сохранено.'; phraseEl.focus();
+      setTimeout(function () { formStatus.textContent = ''; }, 2200);
+      await loadAll();
+    } catch (e) {
+      formStatus.textContent = 'Не получилось: ' + e.message;
+    } finally { addBtn.disabled = false; }
+  });
+
+  // ---- Каталог ----
+  function levelInfo(item) {
+    if ((item.reps || 0) === 0 && (item.interval || 0) === 0) return { label: 'новое', color: 'var(--lv-new)' };
+    if (item.interval < 3) return { label: 'учится', color: 'var(--lv-learning)' };
+    if (item.interval < 15) return { label: 'знакомо', color: 'var(--lv-known)' };
+    return { label: 'освоено', color: 'var(--lv-mastered)' };
+  }
+
+  function renderList() {
+    var bar = document.getElementById('catalog-source-bar');
+    var srcObj = catalogSourceFilter ? sources.find(function (s) { return s.id === catalogSourceFilter; }) : null;
+    if (catalogSourceFilter && !srcObj) catalogSourceFilter = '';
+    bar.innerHTML = srcObj ? '<div class="source-bar"><span>Источник: <b>' + escapeHtml(srcObj.name) + '</b></span><button class="pill-btn" data-clear-source="1">Показать всё</button></div>' : '';
+    var el = document.getElementById('list-content');
+    if (!ready) { el.innerHTML = '<div class="empty"><span class="big">📚</span>Нет связи с сервером.</div>'; return; }
+    var filtered = data.filter(passesTagFilter).filter(passesSearch).filter(function (i) { return !catalogSourceFilter || i.sourceId === catalogSourceFilter; });
+    if (!filtered.length) {
+      el.innerHTML = '<div class="empty"><span class="big">📚</span>' + (data.length ? 'Ничего не найдено.' : 'Пока пусто. Добавь первую фразу.') + '</div>';
+      return;
+    }
+    var sourceById = {}; sources.forEach(function (s) { sourceById[s.id] = s; });
+
+    var byType = {};
+    filtered.forEach(function (item) {
+      var src = item.sourceId ? sourceById[item.sourceId] : null;
+      var typeId = src ? src.type : 'other';
+      var sourceKey = src ? src.id : ('legacy:' + (item.episode || 'Без источника'));
+      var sourceLabel = src ? src.name : (item.episode || 'Без источника');
+      var sourceCover = src ? src.image_filename : null;
+      if (!byType[typeId]) byType[typeId] = { bySource: {}, order: [] };
+      if (!byType[typeId].bySource[sourceKey]) { byType[typeId].bySource[sourceKey] = { label: sourceLabel, cover: sourceCover, items: [] }; byType[typeId].order.push(sourceKey); }
+      byType[typeId].bySource[sourceKey].items.push(item);
+    });
+
+    var typeOrder = TYPES.map(function (t) { return t.id; }).filter(function (id) { return byType[id]; });
+    var html = '';
+    typeOrder.forEach(function (typeId) {
+      var t = typeInfo(typeId);
+      var group = byType[typeId];
+      var totalCount = group.order.reduce(function (sum, k) { return sum + group.bySource[k].items.length; }, 0);
+      html += '<details class="type-group" open><summary><span class="type-dot" style="background:' + t.color + '"></span><span class="type-title">' + t.icon + ' ' + t.label + '</span><span class="type-count">' + totalCount + '</span></summary>';
+      group.order.forEach(function (key) {
+        var src = group.bySource[key];
+        html += '<details class="source-group" open><summary>';
+        html += src.cover ? '<img class="source-cover" src="' + getServer() + '/images/' + src.cover + '">' : '<div class="source-cover-placeholder">' + t.icon + '</div>';
+        html += '<span class="source-name">' + escapeHtml(src.label) + '</span><span class="source-count">' + src.items.length + '</span></summary>';
+        src.items.forEach(function (item) { html += renderPhraseCard(item, t.color); });
+        html += '</details>';
+      });
+      html += '</details>';
+    });
+    el.innerHTML = html;
+    attachPhraseCardHandlers(el);
+    attachSpeakButtons(el);
+  }
+
+  function renderPhraseCard(item, borderColor) {
+    var lv = levelInfo(item);
+    var html = '<div class="phrase-card" data-id="' + item.id + '" style="border-left-color:' + (borderColor || 'var(--border)') + '">';
+    html += '<div class="level-badge"><span class="level-dot" style="background:' + lv.color + '"></span>' + lv.label;
+    if (isLeech(item)) html += '<span class="leech-badge">⚠ стоит пересмотреть</span>';
+    html += '</div>';
+    if (item.videoFilename) html += '<video class="phrase-video" src="' + getServer() + '/videos/' + item.videoFilename + '" controls playsinline></video>';
+    var posI = posInfo(item.pos);
+    if (posI) html += '<span class="pos-badge" style="background:' + posI.color + '">' + posI.label + '</span>';
+    html += '<div class="phrase-text-row"><p class="phrase-text">' + escapeHtml(item.phrase) + '</p><button class="speak-btn" data-text="' + escapeHtml(item.phrase) + '" title="Прослушать">🔊</button></div>';
+    if (item.translation) html += '<p class="phrase-translation">' + escapeHtml(item.translation) + '</p>';
+    if (item.isVerb) {
+      var regInfo = verbRegularityInfo(item.formBase || item.root || item.phrase);
+      if (regInfo) html += '<div><span class="verb-reg-badge" style="background:' + regInfo.color + '">' + regInfo.label + '</span></div>';
+      var forms = [item.formBase && ('to ' + item.formBase), item.form3rd, item.formIng, item.formPast, item.formParticiple].filter(Boolean);
+      if (forms.length) html += '<div class="phrase-forms">' + forms.map(function (f) { return '<span class="form-chip">' + escapeHtml(f) + '</span>'; }).join('') + '</div>';
+    }
+    if (item.note) html += '<p class="phrase-note">' + escapeHtml(item.note) + '</p>';
+    (item.examples || []).forEach(function (ex) {
+      html += '<p class="phrase-example"><span style="display:flex;align-items:flex-start;gap:6px;"><span>' + escapeHtml(ex.text) + '</span><button class="speak-btn" data-text="' + escapeHtml(ex.text) + '" style="flex-shrink:0;">🔊</button></span>';
+      if (ex.translation) html += '<br><span style="color:var(--text-muted);font-style:normal;font-size:12px;">' + escapeHtml(ex.translation) + '</span>';
+      html += '</p>';
+    });
+    html += '<button class="add-example-link" data-addex="' + item.id + '">+ добавить ещё пример</button>';
+    html += '<div class="add-example-row" id="addex-row-' + item.id + '">';
+    html += '<div class="row2"><input type="text" id="addex-input-' + item.id + '" placeholder="Новый пример с этой фразой..."><input type="text" id="addex-translation-' + item.id + '" placeholder="Перевод примера (необязательно)"></div>';
+    html += '<button class="btn btn-primary" data-addex-save="' + item.id + '">Добавить</button></div>';
+    if (item.tags && item.tags.length) html += '<div class="phrase-tags">' + item.tags.map(function (t) { return '<span class="pill">' + escapeHtml(t) + '</span>'; }).join('') + '</div>';
+    html += '<div class="phrase-foot">';
+    html += '<label class="used-toggle' + (item.used ? ' is-used' : '') + '"><input type="checkbox" class="used-cb" ' + (item.used ? 'checked' : '') + '> использовал(а) в речи</label>';
+    html += '<span><button class="edit-link" data-edit="' + item.id + '">изменить</button> <button class="del-btn" data-del="' + item.id + '">удалить</button></span>';
+    html += '</div>';
+    html += renderEditPanel(item);
+    html += '</div>';
+    return html;
+  }
+
+  function renderEditPanel(item) {
+    var id = item.id;
+    var posI = posInfo(item.pos);
+    var html = '<div class="edit-panel" id="edit-panel-' + id + '">';
+    html += '<label>Фраза</label><input type="text" id="edit-phrase-' + id + '" value="' + escapeHtml(item.phrase) + '">';
+    html += '<div class="row2"><div><label>Перевод</label><input type="text" id="edit-translation-' + id + '" value="' + escapeHtml(item.translation) + '"></div>';
+    html += '<div><label>Заметка</label><input type="text" id="edit-note-' + id + '" value="' + escapeHtml(item.note) + '"></div></div>';
+    html += '<label>Примеры (по одному на строку; перевод через " :: ", необязательно)</label><textarea id="edit-examples-' + id + '">' + escapeHtml((item.examples || []).map(function (ex) { return ex.translation ? (ex.text + ' :: ' + ex.translation) : ex.text; }).join('\n')) + '</textarea>';
+    html += '<label>Темы через запятую</label><input type="text" id="edit-tags-' + id + '" value="' + escapeHtml((item.tags || []).join(', ')) + '">';
+    html += '<label>Часть речи</label><div class="pos-chips" id="edit-pos-' + id + '">' + POS.map(function (p) {
+      return '<button type="button" class="pos-chip' + (item.pos === p.id ? ' active' : '') + '" data-pos="' + p.id + '" style="--c:' + p.color + (item.pos === p.id ? ';background:' + p.color + ';border-color:' + p.color : '') + '">' + p.label + '</button>';
+    }).join('') + '</div>';
+    html += '<label class="verb-toggle" style="margin-top:12px;"><input type="checkbox" id="edit-verb-' + id + '" ' + (item.isVerb ? 'checked' : '') + '> Это глагол — формы</label>';
+    html += '<fieldset class="verb-forms' + (item.isVerb ? ' show' : '') + '" id="edit-verb-forms-' + id + '">';
+    html += '<div class="row3"><div><label>Начальная</label><input type="text" id="edit-form-base-' + id + '" value="' + escapeHtml(item.formBase) + '"></div>';
+    html += '<div><label>3-е лицо</label><input type="text" id="edit-form-3rd-' + id + '" value="' + escapeHtml(item.form3rd) + '"></div>';
+    html += '<div><label>-ing</label><input type="text" id="edit-form-ing-' + id + '" value="' + escapeHtml(item.formIng) + '"></div></div>';
+    html += '<div class="row2" style="margin-top:10px;"><div><label>Прошедшее</label><input type="text" id="edit-form-past-' + id + '" value="' + escapeHtml(item.formPast) + '"></div>';
+    html += '<div><label>Причастие</label><input type="text" id="edit-form-participle-' + id + '" value="' + escapeHtml(item.formParticiple) + '"></div></div>';
+    html += '<button type="button" class="btn btn-ghost" style="margin-top:10px;" data-recalc-forms="' + id + '">↻ Пересчитать формы по начальной</button>';
+    html += '</fieldset>';
+    html += '<div class="edit-actions"><button class="btn btn-primary" data-edit-save="' + id + '">Сохранить</button><button class="btn btn-ghost" data-edit-cancel="' + id + '">Отмена</button><span class="form-status" id="edit-status-' + id + '"></span></div>';
+    html += '</div>';
+    return html;
+  }
+
+  function attachPhraseCardHandlers(el) {
+    el.querySelectorAll('.used-cb').forEach(function (cb) {
+      cb.addEventListener('change', async function () {
+        var id = cb.closest('.phrase-card').getAttribute('data-id');
+        try {
+          await api('/phrases/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ used: cb.checked }) });
+          cb.closest('.used-toggle').classList.toggle('is-used', cb.checked);
+          if (cb.checked) recordActivity(5);
+          var it = data.find(function (d) { return d.id === id; }); if (it) it.used = cb.checked;
+        } catch (e) { cb.checked = !cb.checked; }
+      });
+    });
+    el.querySelectorAll('[data-del]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var id = btn.getAttribute('data-del');
+        try { await api('/phrases/' + id, { method: 'DELETE' }); await loadAll(); } catch (e) {}
+      });
+    });
+    el.querySelectorAll('[data-edit]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-edit');
+        document.getElementById('edit-panel-' + id).classList.toggle('show');
+      });
+    });
+    el.querySelectorAll('[data-recalc-forms]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-recalc-forms');
+        var base = document.getElementById('edit-form-base-' + id).value.trim().toLowerCase();
+        if (!base) { document.getElementById('edit-status-' + id).textContent = 'Сначала впиши начальную форму.'; return; }
+        var forms = computeVerbForms(base);
+        document.getElementById('edit-form-past-' + id).value = forms.past;
+        document.getElementById('edit-form-participle-' + id).value = forms.participle;
+        document.getElementById('edit-form-ing-' + id).value = forms.ing;
+        document.getElementById('edit-form-3rd-' + id).value = forms.third;
+        document.getElementById('edit-status-' + id).textContent = 'Формы пересчитаны — нажми «Сохранить».';
+      });
+    });
+    el.querySelectorAll('[data-edit-cancel]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.getElementById('edit-panel-' + btn.getAttribute('data-edit-cancel')).classList.remove('show');
+      });
+    });
+    el.querySelectorAll('.edit-panel .pos-chips').forEach(function (chipsEl) {
+      var idMatch = chipsEl.id.replace('edit-pos-', '');
+      var selected = chipsEl.querySelector('.pos-chip.active');
+      chipsEl.setAttribute('data-selected', selected ? selected.getAttribute('data-pos') : '');
+      chipsEl.querySelectorAll('.pos-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var pid = chip.getAttribute('data-pos');
+          var current = chipsEl.getAttribute('data-selected') || '';
+          var next = (current === pid) ? '' : pid;
+          chipsEl.setAttribute('data-selected', next);
+          chipsEl.querySelectorAll('.pos-chip').forEach(function (c) {
+            var active = c.getAttribute('data-pos') === next;
+            c.classList.toggle('active', active);
+            c.style.background = active ? c.style.getPropertyValue('--c') : '';
+            c.style.borderColor = active ? c.style.getPropertyValue('--c') : '';
+          });
+        });
+      });
+    });
+    el.querySelectorAll('.edit-panel .verb-toggle input').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var id = cb.id.replace('edit-verb-', '');
+        document.getElementById('edit-verb-forms-' + id).classList.toggle('show', cb.checked);
+      });
+    });
+    el.querySelectorAll('[data-edit-save]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var id = btn.getAttribute('data-edit-save');
+        var statusEl = document.getElementById('edit-status-' + id);
+        var examplesRaw = document.getElementById('edit-examples-' + id).value;
+        var examples = examplesRaw.split('\n').map(function (s) { return s.trim(); }).filter(Boolean).map(function (line) {
+          var idx = line.indexOf(' :: ');
+          if (idx === -1) return { text: line, translation: '' };
+          return { text: line.slice(0, idx).trim(), translation: line.slice(idx + 4).trim() };
+        });
+        var themes = document.getElementById('edit-tags-' + id).value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        var posSelected = document.getElementById('edit-pos-' + id).getAttribute('data-selected') || '';
+        var isVerb = document.getElementById('edit-verb-' + id).checked;
+        var payload = {
+          phrase: document.getElementById('edit-phrase-' + id).value.trim(),
+          translation: document.getElementById('edit-translation-' + id).value.trim(),
+          note: document.getElementById('edit-note-' + id).value.trim(),
+          examples: examples, themes: themes, pos: posSelected, is_verb: isVerb,
+          form_base: document.getElementById('edit-form-base-' + id).value.trim(),
+          form_past: document.getElementById('edit-form-past-' + id).value.trim(),
+          form_participle: document.getElementById('edit-form-participle-' + id).value.trim(),
+          form_ing: document.getElementById('edit-form-ing-' + id).value.trim(),
+          form_3rd: document.getElementById('edit-form-3rd-' + id).value.trim()
+        };
+        if (!payload.phrase) { statusEl.textContent = 'Фраза не может быть пустой.'; return; }
+        btn.disabled = true; statusEl.textContent = 'Сохраняю...';
+        try {
+          await api('/phrases/' + id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          await loadAll();
+        } catch (e) {
+          statusEl.textContent = 'Не получилось: ' + e.message;
+          btn.disabled = false;
+        }
+      });
+    });
+    el.querySelectorAll('[data-addex]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-addex');
+        document.getElementById('addex-row-' + id).classList.add('show');
+        document.getElementById('addex-input-' + id).focus();
+      });
+    });
+    el.querySelectorAll('[data-addex-save]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var id = btn.getAttribute('data-addex-save');
+        var input = document.getElementById('addex-input-' + id);
+        var translationInput = document.getElementById('addex-translation-' + id);
+        var text = input.value.trim();
+        var exTranslation = translationInput.value.trim();
+        if (!text) return;
+        btn.disabled = true;
+        try {
+          await api('/phrases/' + id + '/examples', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: text, translation: exTranslation }) });
+          await loadAll();
+        } catch (e) { btn.disabled = false; }
+      });
+    });
+  }
+
+  // ---- Families ----
+  var irregularSearchTerm = '';
+  document.getElementById('irregular-search').addEventListener('input', function () {
+    irregularSearchTerm = this.value.trim().toLowerCase();
+    renderIrregularList();
+  });
+  function renderIrregularList() {
+    var el = document.getElementById('irregular-content');
+    var list = IRREGULAR_LIST.filter(function (v) {
+      if (!irregularSearchTerm) return true;
+      return v[0].indexOf(irregularSearchTerm) !== -1 || v[1].indexOf(irregularSearchTerm) !== -1 || v[2].indexOf(irregularSearchTerm) !== -1;
+    });
+    if (!list.length) { el.innerHTML = '<div class="empty"><span class="big">📕</span>Ничего не найдено.</div>'; return; }
+    var ownBases = {};
+    data.forEach(function (it) { if (it.isVerb) ownBases[splitVerbPhrase(it.formBase || it.phrase).verb] = true; });
+    var html = '<div class="card"><div class="irr-head"><span>Начальная</span><span>Прошедшее</span><span>Причастие</span></div>';
+    list.forEach(function (v) {
+      var already = !!ownBases[v[0]];
+      html += '<div class="irregular-row" data-verb="' + v[0] + '">';
+      html += '<div class="forms">';
+      [v[0], v[1], v[2]].forEach(function (w, idx) {
+        html += '<button type="button" class="speak-btn form-say' + (idx === 0 ? ' base' : '') + '" data-text="' + escapeHtml(w) + '"><span>' + escapeHtml(w) + '</span>' + icon('volume', 14) + '</button>';
+      });
+      html += '</div>';
+      html += already ? '<span class="irr-done" title="Уже в словаре">' + icon('check', 22) + '</span>' : '<button class="irr-add" data-add-irregular="' + v[0] + '" aria-label="Добавить в словарь">' + icon('plus', 22) + '</button>';
+      html += '<div class="add-example-row" id="irr-add-row-' + v[0] + '"><input type="text" id="irr-translation-' + v[0] + '" placeholder="Перевод (необязательно, но без него тесты на вспоминание будут недоступны)"><button class="btn btn-primary" data-confirm-irregular="' + v[0] + '">Добавить</button> <button class="btn btn-ghost" data-skip-irregular="' + v[0] + '">Без перевода</button></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    el.innerHTML = html; attachSpeakButtons(el);
+    async function saveIrregular(base, translation) {
+      var v = IRREGULAR_LIST.find(function (x) { return x[0] === base; });
+      if (!v) return;
+      await api('/phrases', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phrase: v[0], episode: '', themes: ['Неправильные глаголы'], is_verb: true, pos: 'verb', translation: translation || '',
+          form_base: v[0], form_past: v[1], form_participle: v[2], form_ing: regIng(v[0]), form_3rd: reg3rd(v[0])
+        })
+      });
+      recordActivity(2);
+      await loadAll();
+      renderIrregularList();
+    }
+    el.querySelectorAll('[data-add-irregular]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.getElementById('irr-add-row-' + btn.getAttribute('data-add-irregular')).classList.add('show');
+        document.getElementById('irr-translation-' + btn.getAttribute('data-add-irregular')).focus();
+      });
+    });
+    el.querySelectorAll('[data-confirm-irregular]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var base = btn.getAttribute('data-confirm-irregular');
+        var translation = document.getElementById('irr-translation-' + base).value.trim();
+        btn.disabled = true; btn.textContent = 'Добавляю...';
+        try { await saveIrregular(base, translation); } catch (e) { btn.disabled = false; btn.textContent = 'Добавить'; }
+      });
+    });
+    el.querySelectorAll('[data-skip-irregular]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var base = btn.getAttribute('data-skip-irregular');
+        btn.disabled = true;
+        try { await saveIrregular(base, ''); } catch (e) { btn.disabled = false; }
+      });
+    });
+  }
+
+  function renderFamilies() {
+    var el = document.getElementById('families-content');
+    if (!ready) { el.innerHTML = '<div class="empty"><span class="big">🌳</span>Нет связи с сервером.</div>'; return; }
+    var groups = {};
+    data.forEach(function (item) {
+      var key = (item.root || '').trim();
+      if (!key) return;
+      var normKey = key.toLowerCase();
+      if (!groups[normKey]) groups[normKey] = { label: key, items: [] };
+      groups[normKey].items.push(item);
+    });
+    var keys = Object.keys(groups).sort(function (a, b) { return groups[b].items.length - groups[a].items.length; });
+    if (!keys.length) {
+      el.innerHTML = '<div class="empty"><span class="big">🌳</span>Пока нет связанных слов. Впиши "Корень" при добавлении, чтобы собрать первую семью.</div>';
+      return;
+    }
+    if (familiesSearchTerm) {
+      keys = keys.filter(function (k) {
+        if (k.indexOf(familiesSearchTerm) !== -1) return true;
+        return groups[k].items.some(function (it) {
+          return it.phrase.toLowerCase().indexOf(familiesSearchTerm) !== -1 || (it.translation || '').toLowerCase().indexOf(familiesSearchTerm) !== -1;
+        });
+      });
+      if (!keys.length) { el.innerHTML = '<div class="empty"><span class="big">🌳</span>Ничего не найдено.</div>'; return; }
+    }
+    var html = '';
+    keys.forEach(function (k) {
+      var g = groups[k];
+      var posOrder = POS.map(function (p) { return p.id; }).concat(['']);
+      var sortedItems = g.items.slice().sort(function (a, b) { return posOrder.indexOf(a.pos || '') - posOrder.indexOf(b.pos || ''); });
+      html += '<div class="phrase-card" style="border-left-color: var(--accent);" data-family="' + escapeHtml(k) + '">';
+      html += '<p class="phrase-text" style="font-family:\'Inter\',sans-serif;font-size:18px;">' + escapeHtml(g.label) + '</p><div class="family-forms">';
+      sortedItems.forEach(function (item) {
+        var posI = posInfo(item.pos);
+        var borderColor = posI ? posI.color : 'var(--border)';
+        html += '<div class="family-form-chip" style="border-left-color:' + borderColor + '">';
+        if (posI) html += '<span class="pos-badge" style="background:' + posI.color + '">' + posI.label + '</span>';
+        if (item.isVerb) {
+          var famRegInfo = verbRegularityInfo(item.formBase || item.root || item.phrase);
+          if (famRegInfo) html += '<span class="verb-reg-badge" style="background:' + famRegInfo.color + '">' + famRegInfo.label + '</span>';
+        }
+        if (posI || item.isVerb) html += '<br>';
+        html += '<b>' + escapeHtml(item.phrase) + '</b>';
+        if (item.examples && item.examples[0]) html += '<br><span style="color:var(--text-muted);font-style:italic;">' + escapeHtml(item.examples[0].text) + '</span>';
+        html += '</div>';
+      });
+      html += '</div>';
+      html += '<button class="family-add-link" data-family-add="' + escapeHtml(g.label) + '">+ добавить форму в эту семью</button>';
+      html += '<div class="family-add-row" id="family-add-row-' + escapeHtml(k) + '">';
+      html += '<div class="row2"><input type="text" id="family-add-phrase-' + escapeHtml(k) + '" placeholder="Новое слово (например affordability)"><input type="text" id="family-add-translation-' + escapeHtml(k) + '" placeholder="Перевод"></div>';
+      html += '<input type="text" id="family-add-example-' + escapeHtml(k) + '" placeholder="Пример предложения (необязательно)" style="margin-bottom:8px;">';
+      html += '<div class="pos-chips" id="family-add-pos-' + escapeHtml(k) + '" style="margin-bottom:10px;">' + POS.map(function (p) { return '<button type="button" class="pos-chip" data-pos="' + p.id + '" style="--c:' + p.color + '">' + p.label + '</button>'; }).join('') + '</div>';
+      html += '<button class="btn btn-primary" data-family-save="' + escapeHtml(k) + '" data-family-root="' + escapeHtml(g.label) + '">Добавить в словарь</button>';
+      html += '</div></div>';
+    });
+    el.innerHTML = html;
+    attachFamilyAddHandlers(el);
+  }
+
+  function attachFamilyAddHandlers(el) {
+    el.querySelectorAll('[data-family-add]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var card = btn.closest('.phrase-card');
+        var key = card.getAttribute('data-family');
+        document.getElementById('family-add-row-' + key).classList.add('show');
+        document.getElementById('family-add-phrase-' + key).focus();
+      });
+    });
+    el.querySelectorAll('.family-add-row .pos-chips').forEach(function (chipsEl) {
+      var selected = '';
+      chipsEl.querySelectorAll('.pos-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var id = chip.getAttribute('data-pos');
+          selected = (selected === id) ? '' : id;
+          chipsEl.querySelectorAll('.pos-chip').forEach(function (c) {
+            var active = c.getAttribute('data-pos') === selected;
+            c.classList.toggle('active', active);
+            c.style.background = active ? c.style.getPropertyValue('--c') : '';
+            c.style.borderColor = active ? c.style.getPropertyValue('--c') : '';
+          });
+          chipsEl.setAttribute('data-selected', selected);
+        });
+      });
+    });
+    el.querySelectorAll('[data-family-save]').forEach(function (btn) {
+      btn.addEventListener('click', async function () {
+        var key = btn.getAttribute('data-family-save');
+        var root = btn.getAttribute('data-family-root');
+        var phrase = document.getElementById('family-add-phrase-' + key).value.trim();
+        var translation = document.getElementById('family-add-translation-' + key).value.trim();
+        var example = document.getElementById('family-add-example-' + key).value.trim();
+        var posSelected = document.getElementById('family-add-pos-' + key).getAttribute('data-selected') || '';
+        if (!phrase) return;
+        btn.disabled = true; btn.textContent = 'Сохраняю...';
+        try {
+          await api('/phrases', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phrase: phrase, translation: translation, example: example, root: root, pos: posSelected, episode: '', themes: [] })
+          });
+          recordActivity(5);
+          await loadAll();
+        } catch (e) {
+          btn.disabled = false; btn.textContent = 'Добавить в словарь';
+        }
+      });
+    });
+  }
+
+  // ---- Random example / distractor helpers ----
+  function randomExample(item) {
+    if (!item.examples || !item.examples.length) return '';
+    return item.examples[Math.floor(Math.random() * item.examples.length)];
+  }
+  function verbFormPool(item) {
+    var set = {};
+    [item.formBase, item.formPast, item.formParticiple, item.formIng, item.form3rd, item.phrase].forEach(function (f) { if (f && f.trim()) set[f.trim()] = true; });
+    return Object.keys(set);
+  }
+  function pickDistractorTranslations(item, count) {
+    var pool = data.filter(function (i) { return i.id !== item.id && i.translation && i.translation.trim() && i.translation.trim().toLowerCase() !== (item.translation || '').trim().toLowerCase(); });
+    var sameContext = pool.filter(function (i) {
+      var sharedTag = (i.tags || []).some(function (t) { return (item.tags || []).indexOf(t) !== -1; });
+      var sameSource = item.sourceId && i.sourceId === item.sourceId;
+      return sharedTag || sameSource;
+    });
+    var chosenPool = shuffle(sameContext);
+    var rest = shuffle(pool.filter(function (i) { return chosenPool.indexOf(i) === -1; }));
+    var combined = chosenPool.concat(rest).slice(0, count);
+    return combined.map(function (i) { return i.translation; });
+  }
+  function pickDistractorPhrases(item, count) {
+    var pool = data.filter(function (i) { return i.id !== item.id && i.phrase && i.phrase.trim().toLowerCase() !== (item.phrase || '').trim().toLowerCase(); });
+    var sameContext = pool.filter(function (i) {
+      var sharedTag = (i.tags || []).some(function (t) { return (item.tags || []).indexOf(t) !== -1; });
+      var sameSource = item.sourceId && i.sourceId === item.sourceId;
+      return sharedTag || sameSource;
+    });
+    var chosenPool = shuffle(sameContext);
+    var rest = shuffle(pool.filter(function (i) { return chosenPool.indexOf(i) === -1; }));
+    var combined = chosenPool.concat(rest).slice(0, count);
+    return combined.map(function (i) { return i.phrase; });
+  }
+
+  // ---- Spaced repetition + leech tracking ----
+  var MAX_INTERVAL_DAYS = 60;
+  function nextIntervalDays(prevInterval, grade) {
+    if (prevInterval === 0) return grade === 'easy' ? 2 : 1;
+    if (prevInterval === 1) return grade === 'hard' ? 2 : grade === 'easy' ? 5 : 3;
+    var factor = grade === 'hard' ? 1.3 : grade === 'easy' ? 3.0 : 2.2;
+    return Math.round(prevInterval * factor);
+  }
+  function scheduleAfterAnswer(item, gradeOrSuccess) {
+    // Принимает либо true/false (от тестов с автоматической проверкой: Пропуск,
+    // Форма, Диктант, Словообразование, Варианты), либо одну из четырёх градаций
+    // самооценки (от Карточек: again/hard/good/easy).
+    var grade = (gradeOrSuccess === true) ? 'good' : (gradeOrSuccess === false) ? 'again' : gradeOrSuccess;
+    var success = grade !== 'again';
+    var interval, reps, failStreak;
+    if (success) {
+      reps = (item.reps || 0) + 1;
+      failStreak = 0;
+      interval = Math.min(nextIntervalDays(item.interval || 0, grade), MAX_INTERVAL_DAYS);
+    } else {
+      reps = 0; interval = 0; failStreak = (item.failStreak || 0) + 1;
+    }
+    var dueAt = Date.now() + interval * 86400000;
+    item.interval = interval; item.reps = reps; item.dueAt = dueAt; item.failStreak = failStreak;
+    api('/phrases/' + item.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ interval: interval, reps: reps, due_at: dueAt, fail_streak: failStreak }) }).catch(function () {});
+    var pts = recordActivity(success ? 1 : 0);
+    if (sessionActive) { sessionStats.total++; if (success) sessionStats.correct++; sessionStats.points += pts; }
+  }
+
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+
+  function entryKey(e) { return e.item ? e.item.id : (e.family ? 'fam:' + e.family.root : null); }
+  function spreadOutRepeats(entries) {
+    var arr = entries.slice();
+    for (var i = 1; i < arr.length; i++) {
+      if (entryKey(arr[i]) !== null && entryKey(arr[i]) === entryKey(arr[i - 1])) {
+        for (var j = i + 1; j < arr.length; j++) {
+          if (entryKey(arr[j]) !== entryKey(arr[i - 1]) && entryKey(arr[j]) !== entryKey(arr[j - 1])) {
+            var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+            break;
+          }
+        }
+      }
+    }
+    return arr;
+  }
+
+  // ---- Session (одна кнопка "Начать повторение") ----
+  var sessionActive = false;
+  var sessionStats = { total: 0, correct: 0, points: 0 };
+  var deck = [], deckIndex = 0, flipped = false;
+
+  function renderSessionHero() {
+    if (!ready) return;
+    var now = Date.now();
+    var pool = data.filter(function (i) { return passesCardFilters(i); });
+    var due = pool.filter(function (i) { return i.dueAt <= now; });
+    document.getElementById('session-due-count').textContent = due.length;
+    document.getElementById('session-due-sub').textContent = (due.length === 1 ? 'фраза' : 'фраз') + ' готовы к повторению' + (pool.length !== data.length ? ' (под текущий фильтр)' : '');
+  }
+
+  function familyMembers(item) {
+    if (!item.root) return [];
+    var key = item.root.trim().toLowerCase();
+    if (!key) return [];
+    return data.filter(function (i) { return (i.root || '').trim().toLowerCase() === key; });
+  }
+  function hasPhraseInExample(item) {
+    return item.examples && item.examples.some(function (ex) { return ex.text.toLowerCase().indexOf(item.phrase.toLowerCase()) !== -1; });
+  }
+  function checkEligible(item, mode) {
+    if (mode === 'choice') return !!item.translation;
+    if (mode === 'blank') return hasPhraseInExample(item);
+    if (mode === 'form') return item.isVerb && hasPhraseInExample(item) && verbFormPool(item).length >= 2;
+    if (mode === 'dictation') return !!item.translation;
+    if (mode === 'wordform') return familyMembers(item).length >= 2 && hasPhraseInExample(item);
+    if (mode === 'sentence') return item.examples && item.examples.some(function (ex) { return ex.translation && ex.translation.trim(); });
+    if (mode === 'tense') return tenseEligible(item);
+    return true;
+  }
+  // "Зрелость" слова — сколько раз его уже успешно вспомнили. Совсем новые
+  // слова (0 успешных повторений) намного чаще получают лёгкое узнавание
+  // (Карточки/Варианты), а не сразу тесты на чистое воспроизведение по памяти —
+  // без жёсткого запрета, просто с намного меньшим шансом.
+  var EASY_MODES = { flip: true, choice: true };
+  var RECALL_MODES = { blank: true, form: true, dictation: true, wordform: true, sentence: true, tense: true };
+  function pickModeForItem(item) {
+    // "Карточки" (самооценка "вспомнил/не вспомнил") — самый слабый способ
+    // проверки: легко обмануть себя, узнав ответ, вместо того чтобы
+    // по-настоящему его вспомнить. Поэтому в авто-подборе он участвует
+    // только тогда, когда вообще нечем заменить его письменным тестом —
+    // то есть когда у фразы нет перевода (значит, нет и других тестов).
+    var candidates = [];
+    ['choice', 'blank', 'form', 'dictation', 'wordform', 'sentence', 'tense'].forEach(function (m) { if (checkEligible(item, m)) candidates.push(m); });
+    if (!candidates.length) candidates.push('flip');
+    var isNew = (item.reps || 0) === 0;
+    var weighted = [];
+    candidates.forEach(function (m) {
+      var weight = 3;
+      if (isNew && RECALL_MODES[m]) weight = 1;
+      else if (!isNew && EASY_MODES[m]) weight = 2;
+      for (var i = 0; i < weight; i++) weighted.push(m);
+    });
+    return weighted[Math.floor(Math.random() * weighted.length)];
+  }
+
+  function showSessionStartScreen() {
+    sessionActive = false;
+    document.getElementById('session-start').style.display = '';
+    document.getElementById('session-active').style.display = 'none';
+    document.getElementById('session-summary').style.display = 'none';
+  }
+  function showSessionActiveScreen() {
+    document.getElementById('session-start').style.display = 'none';
+    document.getElementById('session-active').style.display = '';
+    document.getElementById('session-summary').style.display = 'none';
+  }
+  function showSessionSummaryScreen() {
+    document.getElementById('session-start').style.display = 'none';
+    document.getElementById('session-active').style.display = 'none';
+    document.getElementById('session-summary').style.display = '';
+    document.getElementById('sum-total').textContent = sessionStats.total;
+    document.getElementById('sum-correct').textContent = sessionStats.correct;
+    document.getElementById('sum-points').textContent = '+' + sessionStats.points;
+    var title = document.getElementById('sum-title');
+    if (!sessionStats.total) title.textContent = 'Нечего было повторять';
+    else if (sessionStats.correct === sessionStats.total) title.textContent = 'Отлично, всё вспомнил!';
+    else if (sessionStats.correct / sessionStats.total >= 0.6) title.textContent = 'Хорошая сессия!';
+    else title.textContent = 'Есть над чем поработать';
+    renderSessionHero();
+  }
+
+  function startAutoSession(pool) {
+    var now = Date.now();
+    var due = pool.filter(function (i) { return i.dueAt <= now; });
+    var rest = pool.filter(function (i) { return i.dueAt > now; });
+    due.sort(function (a, b) { return a.dueAt - b.dueAt; });
+    var chosen = due.concat(shuffle(rest)).slice(0, 15);
+    // Совсем новые слова (0 успешных повторений) встречаются в сессии
+    // 2 раза вместо одного — лишний проход заметно помогает закрепить
+    // слово с первого захода, а не только для последующих отдельных дней.
+    var entries = [];
+    chosen.forEach(function (item) {
+      var repeats = (item.reps || 0) === 0 ? 2 : 1;
+      for (var i = 0; i < repeats; i++) entries.push({ item: item, mode: pickModeForItem(item) });
+    });
+    deck = spreadOutRepeats(shuffle(entries));
+    var families = buildFamiliesPool(pool);
+    if (families.length && deck.length > 1) deck.splice(Math.floor(deck.length / 2), 0, { family: shuffle(families)[0], mode: 'family' });
+    deckIndex = 0; flipped = false;
+    sessionActive = true;
+    sessionStats = { total: 0, correct: 0, points: 0 };
+    showSessionActiveScreen();
+    renderSessionDeck();
+  }
+  document.getElementById('start-session-btn').addEventListener('click', function () {
+    startAutoSession(data.filter(function (i) { return passesCardFilters(i); }));
+  });
+
+  document.getElementById('sum-done-btn').addEventListener('click', showSessionStartScreen);
+  document.getElementById('sum-again-btn').addEventListener('click', function () { document.getElementById('start-session-btn').click(); });
+
+  function buildFamiliesPool(pool) {
+    var groups = {};
+    pool.forEach(function (item) {
+      var key = (item.root || '').trim().toLowerCase();
+      if (!key) return;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+    return Object.keys(groups).filter(function (k) { return groups[k].length >= 2; }).map(function (k) { return { root: groups[k][0].root, items: groups[k] }; });
+  }
+
+  function nextSessionCard() {
+    deckIndex++; flipped = false;
+    if (deckIndex >= deck.length) { showSessionSummaryScreen(); return; }
+    renderSessionDeck();
+  }
+
+  function renderSessionDeck() {
+    var el = document.getElementById('cards-content');
+    var entry = deck[deckIndex];
+    if (!entry) { showSessionSummaryScreen(); return; }
+    if (entry.mode === 'family') renderFamilyCard(el, entry.family, nextSessionCard);
+    else {
+      var item = entry.item;
+      if (entry.mode === 'flip') renderFlip(el, item, nextSessionCard, deckIndex, deck.length);
+      else if (entry.mode === 'choice') renderChoice(el, item, nextSessionCard, deckIndex, deck.length);
+      else if (entry.mode === 'blank') renderBlank(el, item, nextSessionCard, deckIndex, deck.length);
+      else if (entry.mode === 'form') renderFormChoice(el, item, nextSessionCard, deckIndex, deck.length);
+      else if (entry.mode === 'dictation') renderDictation(el, item, nextSessionCard, deckIndex, deck.length);
+      else if (entry.mode === 'wordform') renderWordform(el, item, nextSessionCard, deckIndex, deck.length);
+      else if (entry.mode === 'sentence') renderSentence(el, item, nextSessionCard, deckIndex, deck.length);
+      else if (entry.mode === 'tense') renderTenseExercise(el, item, nextSessionCard, deckIndex, deck.length);
+    }
+  }
+
+  // ---- Advanced / manual practice panel ----
+  var advancedPanel = document.getElementById('advanced-panel');
+  document.getElementById('toggle-advanced-btn').addEventListener('click', function () {
+    advancedPanel.classList.toggle('show');
+    this.textContent = advancedPanel.classList.contains('show') ? 'Скрыть настройки ▴' : 'Выбрать конкретный тип теста ▾';
+  });
+
+  var selectedModes = { choice: true };
+  document.querySelectorAll('.mode-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var m = btn.getAttribute('data-mode');
+      var wouldBeEmpty = selectedModes[m] && Object.keys(selectedModes).filter(function (k) { return selectedModes[k]; }).length === 1;
+      if (wouldBeEmpty) return; // не даём снять последний выбранный режим
+      selectedModes[m] = !selectedModes[m];
+      btn.classList.toggle('active', selectedModes[m]);
+      renderModeDesc();
+      manualDeckDirty = true; buildManualDeck();
+    });
+  });
+  function selectedModeIds() { return Object.keys(selectedModes).filter(function (k) { return selectedModes[k]; }); }
+  var MODE_DESCRIPTIONS = {
+    flip: 'Смотришь фразу (или видео) и стараешься вспомнить перевод и пример, прежде чем перевернуть.',
+    choice: 'Видишь фразу — выбираешь правильный перевод из нескольких вариантов.',
+    blank: 'Видишь свой пример с пропуском на месте фразы — вписываешь её сам.',
+    form: 'Видишь пример с пропуском — выбираешь нужную форму глагола из вариантов.',
+    dictation: 'То видишь фразу и печатаешь перевод на русском, то наоборот — без вариантов, всё по памяти.',
+    wordform: 'Видишь пример с пропуском и базовое слово в скобках — вписываешь нужную производную форму (как в заданиях Cambridge).',
+    sentence: 'Видишь перевод целого предложения на русском — печатаешь его по-английски полностью.',
+    tense: 'Видишь глагол, подлежащее и название времени — ставишь глагол в нужную форму.',
+    family: 'Видишь связанные формы одного слова — составляешь с ними своё предложение.'
+  };
+  function renderModeDesc() {
+    var ids = selectedModeIds();
+    document.getElementById('mode-desc').textContent = ids.map(function (m) { return MODE_DESCRIPTIONS[m]; }).filter(Boolean).join(' · ');
+  }
+
+  function passesCardFilters(item, srcMap) {
+    if (!passesTagFilter(item)) return false;
+    if (newOnlyFilter && !isNewItem(item)) return false;
+    if (irregularFilterOn && !isIrregularItem(item)) return false;
+    var typeSelected = Object.keys(activeCardTypes).filter(function (t) { return activeCardTypes[t]; });
+    if (typeSelected.length && typeSelected.indexOf(itemTypeId(item, srcMap)) === -1) return false;
+    if (cardsSourceFilter && item.sourceId !== cardsSourceFilter) return false;
+    return true;
+  }
+  function renderCardsTypeChips() {
+    var el = document.getElementById('cards-type-chips');
+    var srcMap = sourceMap();
+    var usedTypes = {};
+    data.forEach(function (item) { usedTypes[itemTypeId(item, srcMap)] = true; });
+    var present = TYPES.filter(function (t) { return usedTypes[t.id]; });
+    if (!present.length) { el.innerHTML = ''; return; }
+    el.innerHTML = present.map(function (t) { return '<button type="button" class="type-chip" data-type="' + t.id + '" style="--c:' + t.color + '">' + t.icon + ' ' + t.label + '</button>'; }).join('');
+    el.querySelectorAll('.type-chip').forEach(function (chip) {
+      var id = chip.getAttribute('data-type');
+      var active = !!activeCardTypes[id];
+      chip.classList.toggle('active', active);
+      chip.style.background = active ? chip.style.getPropertyValue('--c') : '';
+      chip.style.borderColor = active ? chip.style.getPropertyValue('--c') : '';
+      chip.addEventListener('click', function () {
+        activeCardTypes[id] = !activeCardTypes[id];
+        cardsSourceFilter = '';
+        renderCardsTypeChips(); renderCardsSourceSelect();
+        manualDeckDirty = true; buildManualDeck(); renderSessionHero();
+      });
+    });
+  }
+  function renderCardsSourceSelect() {
+    var el = document.getElementById('cards-source-select');
+    var typeSelected = Object.keys(activeCardTypes).filter(function (t) { return activeCardTypes[t]; });
+    var relevantSourceIds = {};
+    var srcMap = sourceMap();
+    data.forEach(function (item) {
+      if (!item.sourceId) return;
+      if (typeSelected.length && typeSelected.indexOf(itemTypeId(item, srcMap)) === -1) return;
+      relevantSourceIds[item.sourceId] = true;
+    });
+    var relevantSources = sources.filter(function (s) { return relevantSourceIds[s.id]; });
+    var current = cardsSourceFilter;
+    el.innerHTML = '<option value="">Все источники' + (typeSelected.length ? ' (в выбранном типе)' : '') + '</option>' +
+      relevantSources.map(function (s) { return '<option value="' + s.id + '">' + escapeHtml(typeInfo(s.type).icon + ' ' + s.name) + '</option>'; }).join('');
+    el.value = relevantSources.some(function (s) { return s.id === current; }) ? current : '';
+    cardsSourceFilter = el.value;
+  }
+  document.getElementById('cards-source-select').addEventListener('change', function () {
+    cardsSourceFilter = this.value;
+    manualDeckDirty = true; buildManualDeck(); renderSessionHero();
+  });
+
+  var manualDeckDirty = true;
+  function buildManualDeck() {
+    var modes = selectedModeIds();
+    var itemModes = modes.filter(function (m) { return m !== 'family'; });
+    var familySelected = modes.indexOf('family') !== -1;
+    var pool = data.filter(function (i) { return passesCardFilters(i); });
+
+    var entries = [];
+    var totalEligible = 0, totalDue = 0;
+    if (itemModes.length) {
+      var itemPool = pool.filter(function (i) { return itemModes.some(function (m) { return checkEligible(i, m); }); });
+      totalEligible += itemPool.length;
+      var now = Date.now();
+      var due = itemPool.filter(function (i) { return i.dueAt <= now; });
+      var rest = itemPool.filter(function (i) { return i.dueAt > now; });
+      totalDue += due.length;
+      due.sort(function (a, b) { return a.dueAt - b.dueAt; });
+      var chosenItems = due.concat(shuffle(rest)).slice(0, 20);
+      entries = chosenItems.map(function (item) {
+        var elig = itemModes.filter(function (m) { return checkEligible(item, m); });
+        var mode = elig[Math.floor(Math.random() * elig.length)];
+        return { item: item, mode: mode };
+      });
+    }
+    if (familySelected) {
+      var families = buildFamiliesPool(pool);
+      totalEligible += families.length; totalDue += families.length;
+      var familyEntries = shuffle(families).map(function (f) { return { family: f, mode: 'family' }; });
+      entries = shuffle(entries.concat(familyEntries));
+    }
+
+    deck = entries;
+    deckIndex = 0; flipped = false; manualDeckDirty = false;
+    renderDeckStats(totalEligible, totalDue);
+  }
+  function renderDeckStats(totalEligible, dueNow) {
+    var el = document.getElementById('deck-stats');
+    if (!totalEligible) { el.textContent = ''; el.style.display = 'none'; return; }
+    el.style.display = 'inline-block';
+    el.textContent = 'Готово сейчас: ' + dueNow + ' · всего подходит: ' + totalEligible;
+  }
+  function rebuildManualIfStale(force) { if ((manualDeckDirty || force) && !sessionActive) buildManualDeck(); }
+
+  document.getElementById('start-manual-btn').addEventListener('click', function () {
+    sessionActive = false;
+    buildManualDeck();
+    showSessionActiveScreen();
+    renderManualDeck();
+  });
+  function nextManualCard() {
+    deckIndex++; flipped = false;
+    if (deckIndex >= deck.length) { manualDeckDirty = true; buildManualDeck(); }
+    renderManualDeck();
+  }
+  function renderManualDeck() {
+    var el = document.getElementById('cards-content');
+    if (!ready) { el.innerHTML = '<div class="deck-empty">Нет связи с сервером.</div>'; return; }
+    if (!deck.length) {
+      var reqs = {
+        choice: 'перевод', blank: 'пример с самой фразой внутри', form: 'глагол с формами и таким примером',
+        dictation: 'перевод', wordform: 'семью из 2+ слов с таким примером', sentence: 'перевод примера на русский',
+        tense: 'глагол с заполненной начальной формой (кроме be)',
+        family: 'семью из 2+ связанных слов', flip: 'хотя бы одну фразу'
+      };
+      var needed = selectedModeIds().map(function (m) { return reqs[m]; }).filter(Boolean);
+      el.innerHTML = '<div class="deck-empty">Ничего не подошло под выбранные режимы. Нужно: ' + needed.join(', или ') + '.</div>'; return;
+    }
+    var entry = deck[deckIndex];
+    if (entry.mode === 'family') renderFamilyCard(el, entry.family, nextManualCard);
+    else if (entry.mode === 'flip') renderFlip(el, entry.item, nextManualCard, deckIndex, deck.length);
+    else if (entry.mode === 'choice') renderChoice(el, entry.item, nextManualCard, deckIndex, deck.length);
+    else if (entry.mode === 'blank') renderBlank(el, entry.item, nextManualCard, deckIndex, deck.length);
+    else if (entry.mode === 'form') renderFormChoice(el, entry.item, nextManualCard, deckIndex, deck.length);
+    else if (entry.mode === 'dictation') renderDictation(el, entry.item, nextManualCard, deckIndex, deck.length);
+    else if (entry.mode === 'wordform') renderWordform(el, entry.item, nextManualCard, deckIndex, deck.length);
+    else if (entry.mode === 'sentence') renderSentence(el, entry.item, nextManualCard, deckIndex, deck.length);
+    else if (entry.mode === 'tense') renderTenseExercise(el, entry.item, nextManualCard, deckIndex, deck.length);
+  }
+
+  // ---- Render functions for each review mode (shared by session + manual) ----
+  function progressLine(idx, total, item) {
+    return '<div class="deck-progress"><span>Карточка ' + (idx + 1) + ' из ' + total + '</span><span>' + escapeHtml((item && item.episode) || '') + '</span></div>';
+  }
+  function videoSrc(item) { return getServer() + '/videos/' + item.videoFilename; }
+
+  function renderFlip(el, item, onNext, idx, total) {
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card" id="review-card" style="cursor:' + (flipped ? 'default' : 'pointer') + '">';
+    if (!flipped) {
+      if (item.videoFilename) html += '<div class="face-label">Прослушай и вспомни</div><video src="' + videoSrc(item) + '" controls playsinline></video>';
+      else html += '<div class="face-label">Вспомни перевод и пример</div><div class="front-phrase-row"><div class="front-phrase">' + escapeHtml(item.phrase) + '</div><button class="speak-btn" data-text="' + escapeHtml(item.phrase) + '">🔊</button></div>';
+    } else {
+      html += '<div class="front-phrase-row"><div class="face-label" style="margin:0;font-size:15px;color:var(--text);">' + escapeHtml(item.phrase) + '</div><button class="speak-btn" data-text="' + escapeHtml(item.phrase) + '">🔊</button></div>';
+      if (item.translation) html += '<div class="back-example">' + escapeHtml(item.translation) + '</div>';
+      var ex = randomExample(item);
+      if (ex && ex.text) html += '<div class="back-note" style="font-style:italic;display:flex;align-items:center;gap:6px;justify-content:center;"><span>' + escapeHtml(ex.text) + '</span><button class="speak-btn" data-text="' + escapeHtml(ex.text) + '">🔊</button></div>';
+      if (item.note) html += '<div class="back-note">' + escapeHtml(item.note) + '</div>';
+      html += '<div class="grade-row grade-row-4">';
+      html += '<button class="btn grade-again" id="grade-again">Забыл</button>';
+      html += '<button class="btn grade-hard" id="grade-hard">Трудно</button>';
+      html += '<button class="btn grade-good" id="grade-good">Вспомнил</button>';
+      html += '<button class="btn grade-easy" id="grade-easy">Легко</button>';
+      html += '</div>';
+    }
+    html += '</div>'; el.innerHTML = html; attachSpeakButtons(el);
+    var cardEl = document.getElementById('review-card');
+    if (!flipped) cardEl.addEventListener('click', function (e) { if (e.target.tagName === 'VIDEO' || e.target.classList.contains('speak-btn')) return; flipped = true; redraw(); });
+    else {
+      document.getElementById('grade-again').addEventListener('click', function () { scheduleAfterAnswer(item, 'again'); flipped = false; onNext(); });
+      document.getElementById('grade-hard').addEventListener('click', function () { scheduleAfterAnswer(item, 'hard'); flipped = false; onNext(); });
+      document.getElementById('grade-good').addEventListener('click', function () { scheduleAfterAnswer(item, 'good'); flipped = false; onNext(); });
+      document.getElementById('grade-easy').addEventListener('click', function () { scheduleAfterAnswer(item, 'easy'); flipped = false; onNext(); });
+    }
+    function redraw() { renderFlip(el, item, onNext, idx, total); }
+  }
+
+  function renderChoice(el, item, onNext, idx, total) {
+    var reverse = Math.random() < 0.5;
+    var correctAnswer = reverse ? item.phrase : item.translation;
+    var distractors = reverse ? pickDistractorPhrases(item, 3) : pickDistractorTranslations(item, 3);
+    var options = shuffle([correctAnswer].concat(distractors));
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card">';
+    if (reverse) {
+      html += '<div class="front-phrase" style="font-size:18px;">' + escapeHtml(item.translation) + '</div>';
+      html += '<div class="face-label" style="margin-top:10px;">Выбери правильную фразу на английском</div>';
+    } else {
+      html += item.videoFilename ? '<video src="' + videoSrc(item) + '" controls playsinline></video>' : '<div class="front-phrase-row"><div class="front-phrase">' + escapeHtml(item.phrase) + '</div><button class="speak-btn" data-text="' + escapeHtml(item.phrase) + '">🔊</button></div>';
+      html += '<div class="face-label" style="margin-top:10px;">Выбери правильный перевод</div>';
+    }
+    html += '<div class="choice-grid" id="choice-grid">';
+    options.forEach(function (opt, i) { html += '<button class="choice-opt" data-opt="' + i + '">' + escapeHtml(opt) + '</button>'; });
+    html += '</div></div>'; el.innerHTML = html; attachSpeakButtons(el);
+    var grid = document.getElementById('choice-grid');
+    grid.querySelectorAll('.choice-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var chosen = options[parseInt(btn.getAttribute('data-opt'), 10)];
+        var success = chosen === correctAnswer;
+        grid.querySelectorAll('.choice-opt').forEach(function (b) {
+          b.disabled = true;
+          var val = options[parseInt(b.getAttribute('data-opt'), 10)];
+          if (val === correctAnswer) b.classList.add('correct'); else if (b === btn) b.classList.add('wrong');
+        });
+        scheduleAfterAnswer(item, success);
+        setTimeout(onNext, 900);
+      });
+    });
+  }
+
+  function blankExample(item, ex) {
+    var text = (ex && ex.text) || '';
+    var re = new RegExp(item.phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    return text.replace(re, '_____');
+  }
+  function pickBlankExample(item) {
+    var candidates = (item.examples || []).filter(function (ex) { return ex.text.toLowerCase().indexOf(item.phrase.toLowerCase()) !== -1; });
+    return candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : (item.examples && item.examples[0]) || { text: '', translation: '' };
+  }
+
+  function renderBlank(el, item, onNext, idx, total) {
+    var ex = pickBlankExample(item);
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card">';
+    if (item.videoFilename) html += '<video src="' + videoSrc(item) + '" controls playsinline></video>';
+    html += '<div class="back-example">' + escapeHtml(blankExample(item, ex)) + '</div>';
+    html += '<input type="text" class="blank-input" id="blank-input" placeholder="Впиши пропущенную фразу" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
+    html += '<div class="blank-feedback" id="blank-feedback"></div>';
+    html += '<div class="grade-row"><button class="btn btn-primary" id="blank-check" style="width:100%">Проверить</button></div>';
+    html += '</div>'; el.innerHTML = html;
+    var input = document.getElementById('blank-input');
+    var checked = false;
+    document.getElementById('blank-check').addEventListener('click', function () {
+      if (checked) { onNext(); return; }
+      var success = input.value.trim().toLowerCase() === item.phrase.trim().toLowerCase();
+      var fb = document.getElementById('blank-feedback');
+      fb.innerHTML = (success ? 'Верно!' : 'Правильный ответ: ' + escapeHtml(item.phrase)) + ' <button class="speak-btn" data-text="' + escapeHtml(ex.text) + '">🔊</button>';
+      fb.className = 'blank-feedback ' + (success ? 'ok' : 'no');
+      attachSpeakButtons(fb.parentElement);
+      scheduleAfterAnswer(item, success); checked = true; this.textContent = 'Дальше';
+    });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('blank-check').click(); });
+  }
+
+  function renderFormChoice(el, item, onNext, idx, total) {
+    var ex = pickBlankExample(item);
+    var pool = verbFormPool(item);
+    var options = shuffle(pool).slice(0, 4);
+    if (options.indexOf(item.phrase) === -1) options[0] = item.phrase;
+    options = shuffle(options);
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card">';
+    if (item.videoFilename) html += '<video src="' + videoSrc(item) + '" controls playsinline></video>';
+    html += '<div class="back-example">' + escapeHtml(blankExample(item, ex)) + '</div>';
+    html += '<div class="choice-grid" id="form-grid">';
+    options.forEach(function (opt, i) { html += '<button class="choice-opt" data-opt="' + i + '">' + escapeHtml(opt) + '</button>'; });
+    html += '</div><div class="blank-feedback" id="form-feedback"></div></div>'; el.innerHTML = html;
+    var grid = document.getElementById('form-grid');
+    grid.querySelectorAll('.choice-opt').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var chosen = options[parseInt(btn.getAttribute('data-opt'), 10)];
+        var success = chosen === item.phrase;
+        grid.querySelectorAll('.choice-opt').forEach(function (b) {
+          b.disabled = true;
+          var val = options[parseInt(b.getAttribute('data-opt'), 10)];
+          if (val === item.phrase) b.classList.add('correct'); else if (b === btn) b.classList.add('wrong');
+        });
+        scheduleAfterAnswer(item, success);
+        var regInfo = verbRegularityInfo(item.formBase || item.root || item.phrase);
+        var fb = document.getElementById('form-feedback');
+        var html2 = regInfo ? '<span class="verb-reg-badge" style="background:' + regInfo.color + '">' + regInfo.label + '</span>' + escapeHtml(regInfo.explanation) : '';
+        html2 += ' <button class="btn btn-primary" id="form-next" style="margin-top:10px;width:100%;">Дальше</button>';
+        fb.innerHTML = html2;
+        document.getElementById('form-next').addEventListener('click', onNext);
+      });
+    });
+  }
+
+  function translationParts(item) {
+    return (item.translation || '').split(/[,;/]/).map(function (s) { return s.trim().toLowerCase(); }).filter(Boolean);
+  }
+  function randomTranslationDisplay(item) {
+    var parts = (item.translation || '').split(/[,;/]/).map(function (s) { return s.trim(); }).filter(Boolean);
+    return parts.length ? parts[Math.floor(Math.random() * parts.length)] : (item.translation || '');
+  }
+  function renderDictation(el, item, onNext, idx, total) {
+    var reverse = Math.random() < 0.5; // то EN→RU, то RU→EN — но не оба сразу
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card">';
+    if (reverse) {
+      html += '<div class="face-label">Переведи на русский</div>';
+      html += '<div class="front-phrase-row"><div class="front-phrase" style="font-size:19px;">' + escapeHtml(item.phrase) + '</div><button class="speak-btn" data-text="' + escapeHtml(item.phrase) + '">🔊</button></div>';
+      html += '<input type="text" class="blank-input" id="dict-input" placeholder="Напиши перевод по-русски" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
+    } else {
+      html += '<div class="face-label">Переведи на английский</div>';
+      html += '<div class="front-phrase" style="font-size:19px;">' + escapeHtml(randomTranslationDisplay(item)) + '</div>';
+      html += '<input type="text" class="blank-input" id="dict-input" placeholder="Напиши фразу по-английски" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
+    }
+    html += '<div class="blank-feedback" id="dict-feedback"></div>';
+    html += '<div class="grade-row"><button class="btn btn-primary" id="dict-check" style="width:100%">Проверить</button></div>';
+    html += '</div>'; el.innerHTML = html; attachSpeakButtons(el);
+    var input = document.getElementById('dict-input');
+    var checked = false;
+    document.getElementById('dict-check').addEventListener('click', function () {
+      if (checked) { onNext(); return; }
+      var success, correctDisplay, speakText;
+      if (reverse) {
+        success = translationParts(item).indexOf(input.value.trim().toLowerCase()) !== -1;
+        correctDisplay = item.translation; speakText = item.phrase;
+      } else {
+        success = input.value.trim().toLowerCase() === item.phrase.trim().toLowerCase();
+        correctDisplay = item.phrase; speakText = item.phrase;
+      }
+      var fb = document.getElementById('dict-feedback');
+      fb.innerHTML = (success ? 'Верно!' : 'Правильный ответ: ' + escapeHtml(correctDisplay)) + ' <button class="speak-btn" data-text="' + escapeHtml(speakText) + '">🔊</button>';
+      fb.className = 'blank-feedback ' + (success ? 'ok' : 'no');
+      attachSpeakButtons(fb.parentElement);
+      scheduleAfterAnswer(item, success); checked = true; this.textContent = 'Дальше';
+    });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('dict-check').click(); });
+  }
+
+  function renderWordform(el, item, onNext, idx, total) {
+    var ex = pickBlankExample(item);
+    var root = (item.root || item.phrase).toUpperCase();
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card">';
+    html += '<div class="face-label">Впиши нужную форму слова</div>';
+    html += '<div class="back-example">' + escapeHtml(blankExample(item, ex)) + '</div>';
+    html += '<div class="back-note" style="margin-bottom:6px;">(' + escapeHtml(root) + ')</div>';
+    html += '<input type="text" class="blank-input" id="wf-input" placeholder="Напиши нужную форму" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
+    html += '<div class="blank-feedback" id="wf-feedback"></div>';
+    html += '<div class="grade-row"><button class="btn btn-primary" id="wf-check" style="width:100%">Проверить</button></div>';
+    html += '</div>'; el.innerHTML = html;
+    var input = document.getElementById('wf-input');
+    var checked = false;
+    document.getElementById('wf-check').addEventListener('click', function () {
+      if (checked) { onNext(); return; }
+      var success = input.value.trim().toLowerCase() === item.phrase.trim().toLowerCase();
+      var fb = document.getElementById('wf-feedback');
+      var explain = (success ? 'Верно!' : 'Правильный ответ: ' + escapeHtml(item.phrase)) + ' <button class="speak-btn" data-text="' + escapeHtml(ex.text) + '">🔊</button>';
+      var posI = posInfo(item.pos);
+      if (posI) explain += '<div style="margin-top:6px;"><span class="pos-badge" style="background:' + posI.color + '">' + posI.label + '</span></div>';
+      if (item.isVerb) {
+        var regInfo = verbRegularityInfo(item.formBase || item.root || item.phrase);
+        if (regInfo) explain += '<div style="margin-top:4px;"><span class="verb-reg-badge" style="background:' + regInfo.color + '">' + regInfo.label + '</span>' + escapeHtml(regInfo.explanation) + '</div>';
+      }
+      fb.innerHTML = explain;
+      fb.className = 'blank-feedback ' + (success ? 'ok' : 'no');
+      attachSpeakButtons(fb.parentElement);
+      scheduleAfterAnswer(item, success); checked = true; this.textContent = 'Дальше';
+    });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('wf-check').click(); });
+  }
+
+  function renderSentence(el, item, onNext, idx, total) {
+    var candidates = (item.examples || []).filter(function (ex) { return ex.translation && ex.translation.trim(); });
+    var ex = candidates.length ? candidates[Math.floor(Math.random() * candidates.length)] : { text: '', translation: '' };
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card">';
+    html += '<div class="face-label">Переведи предложение на английский</div>';
+    html += '<div class="front-phrase" style="font-size:18px;">' + escapeHtml(ex.translation) + '</div>';
+    html += '<textarea class="compose-input" id="sentence-input" placeholder="Напиши перевод по-английски..." style="margin-top:14px;"></textarea>';
+    html += '<div class="blank-feedback" id="sentence-feedback"></div>';
+    html += '<div class="grade-row"><button class="btn btn-primary" id="sentence-check" style="width:100%">Проверить</button></div>';
+    html += '</div>'; el.innerHTML = html;
+    var input = document.getElementById('sentence-input');
+    var checked = false;
+    function normalize(s) { return s.trim().toLowerCase().replace(/[.!?]+$/, '').replace(/\s+/g, ' '); }
+    document.getElementById('sentence-check').addEventListener('click', function () {
+      if (checked) { onNext(); return; }
+      var success = normalize(input.value) === normalize(ex.text);
+      var fb = document.getElementById('sentence-feedback');
+      fb.innerHTML = (success ? 'Верно!' : 'Один из верных вариантов: ' + escapeHtml(ex.text)) + ' <button class="speak-btn" data-text="' + escapeHtml(ex.text) + '">🔊</button>';
+      fb.className = 'blank-feedback ' + (success ? 'ok' : 'no');
+      attachSpeakButtons(fb.parentElement);
+      scheduleAfterAnswer(item, success); checked = true; this.textContent = 'Дальше';
+    });
+  }
+
+  function renderTenseExercise(el, item, onNext, idx, total) {
+    var tenseIds = Object.keys(TENSE_LABELS);
+    var tense = tenseIds[Math.floor(Math.random() * tenseIds.length)];
+    var subject = SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)];
+    var base = item.formBase || item.phrase;
+    var correct = buildTenseAnswer(item, tense, subject);
+    var html = progressLine(idx, total, item);
+    html += '<div class="review-card">';
+    html += '<div class="face-label">' + TENSE_LABELS[tense] + '</div>';
+    html += '<div class="front-phrase-row"><div class="front-phrase" style="font-size:19px;">' + escapeHtml(subject) + ' ___ (' + escapeHtml(base) + ')</div><button class="speak-btn" data-text="' + escapeHtml(base) + '">🔊</button></div>';
+    html += '<input type="text" class="blank-input" id="tense-input" placeholder="Впиши только пропущенное (подлежащее уже есть)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">';
+    html += '<div class="blank-feedback" id="tense-feedback"></div>';
+    html += '<div class="grade-row"><button class="btn btn-primary" id="tense-check" style="width:100%">Проверить</button></div>';
+    html += '</div>'; el.innerHTML = html; attachSpeakButtons(el);
+    var input = document.getElementById('tense-input');
+    var checked = false;
+    document.getElementById('tense-check').addEventListener('click', function () {
+      if (checked) { onNext(); return; }
+      var typed = input.value.trim().toLowerCase().replace(/\s+/g, ' ');
+      var subjLower = subject.toLowerCase() + ' ';
+      if (typed.indexOf(subjLower) === 0) typed = typed.slice(subjLower.length); // подлежащее уже есть в задании, но если вписал — не страшно
+      var success = typed === correct.toLowerCase();
+      var fb = document.getElementById('tense-feedback');
+      var full = escapeHtml(subject) + ' ' + escapeHtml(correct);
+      fb.innerHTML = (success ? 'Верно! ' : 'Правильный ответ: ') + '<i>' + full + '</i> <button class="speak-btn" data-text="' + escapeHtml(subject + ' ' + correct) + '">🔊</button>';
+      fb.className = 'blank-feedback ' + (success ? 'ok' : 'no');
+      attachSpeakButtons(fb.parentElement);
+      scheduleAfterAnswer(item, success); checked = true; this.textContent = 'Дальше';
+    });
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') document.getElementById('tense-check').click(); });
+  }
+
+  function renderFamilyCard(el, fam, onNext) {
+    var html = '<div class="deck-progress"><span>Семья</span><span>' + escapeHtml(fam.root) + '</span></div>';
+    html += '<div class="review-card" style="align-items:stretch;text-align:left;">';
+    html += '<div class="face-label" style="text-align:center;">Составь одно предложение минимум с двумя формами этого слова</div>';
+    html += '<div class="family-forms" style="justify-content:center;margin-bottom:6px;">';
+    fam.items.forEach(function (it) { html += '<div class="family-form-chip"><b>' + escapeHtml(it.phrase) + '</b></div>'; });
+    html += '</div>';
+    html += '<textarea class="compose-input" id="compose-input" placeholder="Напиши здесь своё предложение..."></textarea>';
+    html += '<div class="grade-row"><button class="btn btn-ghost" id="family-skip">Пропустить</button><button class="btn grade-ok" id="family-done">Готово</button></div>';
+    html += '</div>';
+    el.innerHTML = html;
+    document.getElementById('family-skip').addEventListener('click', onNext);
+    document.getElementById('family-done').addEventListener('click', function () {
+      var text = document.getElementById('compose-input').value.trim();
+      var pts = recordActivity(text.length > 3 ? 10 : 0);
+      if (sessionActive) { sessionStats.total++; sessionStats.correct++; sessionStats.points += pts; }
+      onNext();
+    });
+  }
+
+  init();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
